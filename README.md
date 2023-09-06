@@ -4,9 +4,7 @@
 - 💞️ I’m not looking to collaborate on any other projects... just to leave something that may be of help to someone
 - 📫 I'm not reachable at the time
 
-<!---
 tronatorex1/tronatorex1 is a collection of EXAMPLES (not finished or definite) codes, that I hope may help people with syntax and other details related mostly to PS/Py/SS
 DO NOT JUDGE MY CODES! I am not here to be judged. I am not a code-fashionista! 
 If you find useful anything, use it! 
 Otherwise, go and complaint to someone else ;)
---->
