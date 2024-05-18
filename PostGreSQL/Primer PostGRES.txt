@@ -1,0 +1,356 @@
+PostGRES:
+
+1. Install and set an initial (user unknown) password as 12345678
+
+2. Look for the psql program and run using CMD as:
+psql -U postgres -h localhost
+where:
+ postgres is the defult 12345678 password user
+ localhost is to connect locally
+
+3. Check the installed version:
+ SELECT version();
+
+4. DESCRIBE
+ at psql> \d <table name>
+ at psql> \d+ <table name> 
+ at psql> \dt+ = all tables with details
+
+5. Multi inserts
+ INSERT INTO customers (customer_name, contact_name, address, city, postal_code, country)
+ VALUES
+  ('Alfreds Futterkiste', 'Maria Anders', 'Obere Str. 57', 'Berlin', '12209', 'Germany'),
+  ('Ana Trujillo Emparedados y helados', 'Ana Trujillo', 'Avda. de la Constitucion 2222', 'Mexico D.F.', '05021', 'Mexico'),
+  ('Antonio Moreno Taquera', 'Antonio Moreno', 'Mataderos 2312', 'Mexico D.F.', '05023', 'Mexico');
+
+6. Create table
+ CREATE TABLE categories (
+  category_id SERIAL NOT NULL PRIMARY KEY,
+  category_name VARCHAR(255),
+  description VARCHAR(255)); 
+
+7. Alters
+ ALTER TABLE T1 alter column b type varchar(100);
+ alter table cars drop column color;
+ alter table cars 
+  alter column color 
+  type varchar(30);
+
+8. SELECT:
+- Distinct:
+  SELECT COUNT(DISTINCT country) FROM customers;
+   or
+  SELECT (count(distinct(country))) FROM customers;
+   or 
+  SELECT distinct(city, country) FROM customers; 
+
+- LIMIT and OFFSET: 
+  SELECT * FROM customers LIMIT 20 OFFSET 40;
+
+- Start with:
+  SELECT (city) FROM customers WHERE UPPER(city) LIKE UPPER('Barq%'); 
+   or
+  SELECT (city) FROM customers WHERE UPPER(city) LIKE UPPER('B_rquisimeto'); # % The percent sign represents zero, one, or multiple characters, _ The underscore sign represents one, single character
+
+- Contains:
+  SELECT city FROM customers WHERE city ILIKE '%ar%'; # ILIKE insensitive chars
+  SELECT * FROM Products WHERE product_name BETWEEN 'Pavlova' AND 'Tofu' order by product_name; 
+  SELECT * FROM orders WHERE order_date BETWEEN '2023-04-12' AND '2023-05-05'; 
+
+- Aliases:
+  SELECT customer_id "id" from customers limit 10;
+
+9. UPSERT: allows you to update an existing row or insert a new one if it doesn’t exist.
+INSERT INTO inventory (id, name, price, quantity) VALUES (1, 'A', 16.99, 120)
+ON CONFLICT(id) -- this is the primary key. If id/record exists, then DO UPDATE, otherwise INSERT 
+DO UPDATE SET
+  price = EXCLUDED.price, quantity = EXCLUDED.quantity;
+
+
+- JOIN:
+    INNER JOIN: Returns records that have matching values in both tables
+    LEFT JOIN: Returns all records from the left table, and the matched records from the right table
+    RIGHT JOIN: Returns all records from the right table, and the matched records from the left table
+    FULL JOIN: Returns all records when there is a match in either left or right table
+    SELF JOIN: Join executed with the same table (... from emp A, emp B...) to eg. hierarchy reports
+    CROSS JOIN: will return the Cartesian product
+
+Self Join:
+SELECT 
+  e.first_name || ' ' || e.last_name employee, 
+  m.first_name || ' ' || m.last_name manager 
+FROM 
+  employee e 
+  INNER JOIN employee m ON m.employee_id = e.manager_id 
+ORDER BY 
+  manager;
+
+
+Note: JOIN and INNER JOIN will give the same result. INNER is the default join type for JOIN, so when you write JOIN the parser actually writes INNER JOIN.
+
+SELECT product_id, product_name, category_name
+FROM 
+products INNER JOIN categories 
+ON products.category_id = categories.category_id; 
+
+or 
+
+SELECT product_id, product_name, category_name
+FROM 
+products A, categories B
+where 
+A.category_id = B.category_id; 
+
+- UNION:
+  SELECT product_id, product_name FROM products
+   UNION
+  SELECT testproduct_id, product_name FROM testproducts
+  ORDER BY product_id; 
+
+- INTERSECT: returns a result set containing rows that are available in both result sets (both tables must have the same fields). This is similar to an INNER JOIN
+  SELECT select_list
+  FROM A
+   INTERSECT
+  SELECT select_list
+  FROM B;
+
+- EXCEPT: returns distinct rows from the first (left) query that are not in the second (right) query
+  SELECT select_list
+  FROM A
+   EXCEPT 
+  SELECT select_list
+  FROM B;
+
+
+- HAVING:
+The HAVING clause was added to SQL because the WHERE clause cannot be used with aggregate functions. The HAVING clause is often used with the GROUP BY clause to filter groups based on a specified condition.
+
+SELECT COUNT(customer_id), country
+FROM customers
+GROUP BY country
+HAVING COUNT(customer_id) > 5; 
+
+or
+
+SELECT customers.customer_name, SUM(products.price)
+FROM order_details
+LEFT JOIN products ON order_details.product_id = products.product_id
+LEFT JOIN orders ON order_details.order_id = orders.order_id
+LEFT JOIN customers ON orders.customer_id = customers.customer_id
+GROUP BY customer_name
+HAVING SUM(products.price) > 1000.00;	
+
+- EXIST and NOT EXIST:
+The EXISTS operator is used to test for the existence of any record in a sub query. The EXISTS operator returns TRUE if the sub query returns one or more records.
+
+SELECT customers.customer_name
+FROM customers
+WHERE EXISTS (
+  SELECT order_id
+  FROM orders
+  WHERE customer_id = customers.customer_id
+); # Return all customers that are represented in the orders table
+
+or
+
+SELECT customers.customer_name
+FROM customers
+WHERE NOT EXISTS (
+  SELECT order_id
+  FROM orders
+  WHERE customer_id = customers.customer_id
+); # Return all customers that are NOT represented in the orders table
+
+- SUBQUERIES:
+SELECT city 
+FROM   city 
+WHERE  country_id = (
+    SELECT country_id 
+    FROM   country 
+    WHERE  country = 'United States') 
+ORDER BY 
+  city;
+
+- ALIASES:
+    SELECT NOW() "X";
+    SELECT NOW() AS X;
+
+- NULLS:
+    SELECT field FROM table ORDER BY field NULLS LAST;
+
+- OFFSET OR PAGING:
+    SELECT name 
+    FROM   users 
+    ORDER  BY name 
+    LIMIT  3   -- use FETCH instead LIMIT for compatibility issues
+    #OFFSET 0;	
+    #OFFSET 3; -- múltiplo de LIMIT=3, OFFSET=0 (desde el inicio), =3 (los siguientes 4,5,6 rows), =6 (sig 7,6,8)...
+    #OFFSET 6;
+    #OFFSET 9;
+     
+- DEALING WITH DATES:
+    SELECT id, name, created_at FROM demo_view WHERE created_at::date BETWEEN '2000-02-15' AND '2030-02-16';
+
+    SELECT id, name, created_at FROM demo_view WHERE created_at::date IN ('2021-07-01');
+
+    SELECT id, name, created_at FROM demo_view WHERE created_at::date NOT IN ('2021-07-01');
+
+- CASE:
+It acts as a DECODE() function in the SELECT section:
+Oracle: select decode(1+1, 2, 'yes', 'no') from dual
+Postgres: select case 1+1 when 2 then 'yes' else 'no' end
+
+SELECT product_name,
+CASE
+  WHEN price < 10 THEN 'Low price product'
+  WHEN price > 50 THEN ''||price
+ELSE
+  'Normal product'
+END AS "price or other"
+FROM products;
+
+- LIKE and ILIKE:
+  SELECT id, name, created_at FROM demo_view WHERE created_at::date IN ('2021-07-01') and name ilike 'J%';
+
+- Importing CSV to table:
+  COPY sample_table_name -- or --> COPY persons(first_name, last_name, dob, email)
+  FROM 'C:\sampledb\sample_data.csv' 
+   DELIMITER ',' 
+   CSV HEADER;
+
+- Exporting table to CSV:
+  COPY persons(first_name,last_name,email) 
+   TO 'C:\temp\persons_partial_db.csv' DELIMITER ',' CSV HEADER;
+
+or
+
+  \copy (SELECT * FROM persons) to 'C:\temp\persons_client.csv' with csv
+
+- SELECT INTO/CREATE TABLE AS: creates a new table with the data selected from a previous SELECT statement
+  SELECT select_list I
+  INTO [ TEMPORARY | TEMP ] [ TABLE ] new_table_name 
+  FROM table_name 
+  WHERE search_condition;
+
+or 
+
+  CREATE TABLE new_table_name
+  AS query;
+
+or
+
+  CREATE TABLE new_table AS 
+  TABLE existing_table 
+  WITH NO DATA;
+
+
+JSON:
+1. Create JSON compatible table:
+CREATE TABLE TakeOrder (
+	info json NOT NULL
+);
+
+
+2. Insert values into the table:
+INSERT INTO TakeOrder (info)
+VALUES('{ "customer": "Barney Stinson", "items": {"product": "chocoloate","qty": 24}}'),
+      ('{ "customer": "Ted Mosby",      "items": {"product": "beer",      "qty":  1}}'),
+      ('{ "customer": "Mary Jane",      "items": {"product": "Toy car",   "qty":  2}}');
+
+3. Selecting deep JSON nodes only:
+SELECT info->'items'->'qty' AS X FROM TakeOrder;
+
+select info -> 'items' -> 'product' from TakeOrder;
+
+select info->'customer',info->'items',info->'items'->'qty' from TakeOrder;
+
+select 
+CASE
+when cast(cast(info->'items'->'qty' as varchar) as integer) >  1 then cast(info->'items'->'qty'||'---' as varchar)
+when cast(cast(info->'items'->'qty' as varchar) as integer) <= 1 then cast(info->'items'->'qty'        as varchar)
+END AS qty
+from TakeOrder;
+
+SELECT info->'items'->'qty' AS X
+FROM TakeOrder WHERE CAST(CAST(info->'items'->'qty' AS VARCHAR) AS INTEGER) = 24; # json must be cast into string or number types to 
+
+SELECT info->'items'->'product' AS X
+FROM TakeOrder
+where cast(info->'items'->'product' as varchar) ilike '"%ea%"'; # The value includes "" as "Tea". Searching for Tea will not work due to "" are part of the string
+
+or
+
+SELECT info->'items'->'product' AS X
+FROM TakeOrder
+where cast(info->'items'->'product' as varchar) = '"Tea"';
+
+or SELECT REPLACE(cast(info as VARCHAR), 'T', 'X') AS XXX 
+FROM TakeOrder
+where cast(info->'items'->'product' as varchar) ilike '"tea"'; # replace() == DECODE()
+
+
+TIPS
+
+0. Select all_tables object: select * from pg_stat_user_tables
+
+1. Copy contents from old table and create a cloned new table with selective data
+
+select * into table t4 from t1;
+
+or
+
+CREATE TABLE new_table AS TABLE old_table WITH NO DATA; # datat and structure are copied
+
+CREATE TABLE copy_partial_students AS SELECT * FROM students WHERE id IN (1, 3);
+
+
+2. Compare tables and obtain differences
+
+SELECT
+    ID,
+    NAME,
+    'not in bar' AS note
+FROM
+    foo
+EXCEPT
+    SELECT
+        ID,
+        NAME,
+        'not in bar' AS note
+    FROM
+        bar;
+
+
+
+3. PK and FK creation:
+CREATE TABLE departments (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    department_id INT NOT NULL,
+    FOREIGN KY(department_id) 
+       REFERENCES departments (id) 
+       ON DELETE CASCADE
+);
+--
+select * from parent_table;
+select * from child_table;
+select A.id, A.name, B.name
+from parent_table A, child_table B
+where A.id = B.id;
+
+
+
+4. Unique Constraint creation:
+CREATE TABLE person (
+  id SERIAL PRIMARY KEY, 
+  first_name VARCHAR (50), 
+  last_name VARCHAR (50), 
+  email VARCHAR (50) UNIQUE
+);
+
+

@@ -1,0 +1,284 @@
+PL/pgSQL:
+=========
+
+- Basic structure;
+do 
+$$
+declare
+   x integer;
+begin 
+   select count(*) into x from employee;
+   raise notice 'The number of people is: %', x;
+end;
+$$;
+
+create function employee_count(
+   id int
+) returns integer
+language sql
+as 
+  'select count(*) from employee';
+
+perform employee_count();
+
+
+
+
+- Returns only 1 resulting record:
+do 
+$$
+declare
+   v_first_name employee.first_name%type;
+   v_last_name employee.last_name%type;
+begin
+   select first_name, last_name into v_first_name, v_last_name from employee where first_name = 'Ged';
+
+   raise notice '% %', v_first_name, v_last_name;
+   raise info 'information message %', now() ;
+   raise log 'log message %', now();
+   raise debug 'debug message %', now();
+   raise warning 'warning message %', now();
+   raise notice 'notice message %', now();
+   if not found then
+     raise notice ' [X] - no access to table!!!..........................................';
+  end if;
+end; 
+$$;
+
+
+
+
+- Return as many records as found:
+do 
+$$
+declare
+   r record;
+begin
+   for r in select first_name, last_name from employee where first_name not ilike 'W%'
+   
+   loop
+       raise notice '% %', r.first_name, r.last_name;
+   end loop;
+
+   if not found then
+     raise notice ' [X] - no access to table!!!..........................................';
+  end if;
+end; 
+$$;
+
+
+
+
+- Random numbers:
+select random();
+
+CREATE OR REPLACE FUNCTION f_random_between(low INT ,high INT) 
+   RETURNS INT AS
+$$
+BEGIN
+   RETURN floor(random()* (high-low + 1) + low);
+END;
+$$ language 'plpgsql' STRICT;
+
+select f_random_between(222 ,1000);
+
+
+
+
+- CASE:
+do 
+$$
+declare
+   r record;
+begin
+   for r in select first_name, last_name,
+		CASE 
+	      WHEN manager_id > 1 THEN 'gretTh 1'
+	      WHEN manager_id <= 1 THEN 'lessTh 1'
+	    END manager_id
+   from employee where first_name not ilike 'W%'
+   
+	loop
+       raise notice '% % [%]', r.first_name, r.last_name, r.manager_id;
+   end loop;
+
+   if not found then
+     raise notice ' [X] - no access to table!!!..........................................';
+  end if;
+end; 
+$$;
+
+
+Note: if manager_id would ahve been String use:
+====
+SELECT <fields>
+       CASE <other_field>
+           WHEN 'G' THEN 'General Audiences'
+           WHEN 'PG' THEN 'Parental Guidance Suggested'
+       END <alias>
+FROM <table>
+ORDER BY <field>;
+
+
+
+
+
+
+
+
+EXAMPLES***************************************************************************************************************************
+========
+
+-RANDOM STRING CREATOR FUNCTION:
+--------------------------------
+
+CREATE OR REPLACE FUNCTION get_random_string(
+        IN string_length INTEGER,
+        IN possible_chars TEXT
+        DEFAULT '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    ) RETURNS text
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    output TEXT = '';
+    i INT4;
+    pos INT4;
+BEGIN
+    FOR i IN 1..string_length LOOP
+        pos := 1 + CAST( random() * ( LENGTH(possible_chars) - 1) AS INT4 );
+        output := output || substr(possible_chars, pos, 1);
+    END LOOP;
+    RETURN output;
+END;
+$$;
+
+
+
+
+-NOW() FUNCTION CREATOR
+-----------------------
+
+create or replace FUNCTION f_now()
+	returns TEXT 
+	language plpgsql
+as $$
+declare
+	t TEXT;
+begin
+	select TO_CHAR(NOW(),'YYYYMMDD HH:MI:SS') into t;
+	return t; 
+end; 
+$$
+
+
+
+
+-AUTO TABLE FILLER:
+-------------------
+
+do
+$$
+	declare
+	max integer = 5;
+	min integer = -2;
+	begin
+		RAISE NOTICE '------- AUTO TABLE FILLER : STARTS! -------';
+		for counter in 1..100 by 1 loop
+    		raise notice 'randoms: % : [%] [%] [%] [%] [%] : %', counter, f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), to_char(CURRENT_TIMESTAMP,'HH24:MI:SS');
+  			INSERT INTO STAT1 VALUES (counter, f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), f_random_between(min, max), current_timestamp);
+			commit;	
+		perform pg_sleep(0.2);
+		end loop;
+	RAISE NOTICE '-------- AUTO TABLE FILLER : DONE! --------';
+	commit;
+end;
+$$;
+
+
+-SLEEP: 
+-------
+
+select pg_sleep(1.5) 
+
+or 
+
+perform pg_sleep(<seconds>)
+
+
+
+-STORE PROCEDURES: USE THEM ONLY TO HOUSEKEEP DATA AND MAINTENANCE, NOT TO RETURN VALUES TO SELECT
+--------------------------------------------------------------------------------------------------
+
+-- 1 Creating a stored procedure
+CREATE PROCEDURE 
+get_employee (IN employee_id INT)
+BEGIN
+    SELECT * FROM employees WHERE employee_id = employee_id;
+END;
+
+-- 2 Executing a stored procedure
+CALL public.my_now()
+
+
+
+
+
+-FUNCTION THAT RETURNS RECORDS AS A TABLE'S SELECT STATEMENT
+------------------------------------------------------------
+
+create or replace function f_now_table2 () 
+returns table (
+	fecha text,
+	hora text
+) 
+language plpgsql
+as $$
+begin
+	return query 
+		select TO_CHAR(NOW(),'YYYYMMDD')::TEXT, TO_CHAR(NOW(),'HH:MI:SS')::TEXT;
+end;
+$$;
+
+
+-- to call or run, select it! this outputs as a select to a table, otherwise will return a TUPLE like Python's tuple
+select * from f_now_table2();
+--
+
+    fecha         | hora
+------------------+-------------------
+ 20240516         |          04:19:31
+
+
+
+-CREATE A PL THAT CREATES A NEW (JOINED) TABLE FROM A SELECT FROM A,B,C (USING JOIN)
+------------------------------------------------------------------------------------
+
+do
+$$
+    begin
+        create table if not exists people_all as
+                    SELECT people1.user_id, people1.job_title,
+                           people2.first_name, people2.last_name,
+                           people3.sex, people3.email, people3.phone
+                    FROM people1, people2, people3
+                    WHERE people1.user_id = people2.user_id AND people2.user_id = people3.user_id
+                    ORDER BY people1.user_id ASC;
+    end;
+$$ LANGUAGE plpgsql;
+
+
+
+-CREATE FUNCTION THAT USES DECLARE OF ROW TYPE (ALL TABLE'S ROWS' FIELDS TYPE IN ONE OBJECT)
+--------------------------------------------------------------------------------------------
+--ORACLE dialect
+CREATE FUNCTION test1(fstname text) RETURNS text AS $$
+DECLARE
+    fst_name text;
+    found_employee employees%ROWTYPE; -- found_employee is a cloned employees' cols types in one record-variable
+BEGIN
+    SELECT * INTO found_employee FROM employees WHERE first_name = fst_name;
+IF NOT FOUND THEN
+    RAISE EXCEPTION 'employee % not found', fst_name;
+END IF;
+
+
