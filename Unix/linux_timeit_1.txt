@@ -1,0 +1,13 @@
+#!/bin/sh
+#echo "   *** TimeIt ***"
+#$var_pid=`ps -ef | grep main.py | egrep -v grep | awk '{print $2}'`
+i=$1
+start_=`ls -ltr $i | awk '{print $5}'`
+#echo $start_
+sleep 1
+stop_=`ls -ltr $i | awk '{print $5}'`
+#echo $stop_
+x=`expr $stop_ - $start_`
+y=`expr $x / 1048570`
+z=$(echo "scale=2; ( $stop_ - $start_ ) / 1048570" | bc)
+echo "$z Mbytes/seg"

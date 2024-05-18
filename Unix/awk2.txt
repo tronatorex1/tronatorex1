@@ -1,0 +1,575 @@
+awk2:
+
+Performing Math functions
+awk ’{ sum = $2 + $3 + $4 ; avg = sum / 3
+print $1, avg }’ grades
+
+The -v option
+This option assigns a value to a variable. It allows assignment before the program execution. The following example describes the usage of the -v option.
+Example
+[jerry]$ awk -v name=Jerry 'BEGIN{printf "Name = %s\n", name}'
+Output
+Name = Jerry
+
+The --dump-variables[=file] option
+It prints a sorted list of global variables and their final values to file. The default file is awkvars.out.
+Example
+[jerry]$ awk --dump-variables ''
+[jerry]$ cat awkvars.out 
+
+=======marks.txt========
+Input sample data:
+1) Amit     Physics   80
+2) Rahul    Maths     90
+3) Shyam    Biology   87
+4) Kedar    English   85
+5) Hari     History   89
+
+Printing all contents
+[jerry]$ awk '{print $3 "\t" $4}' marks.txt
+
+Printing Columns by Pattern
+When a pattern match succeeds, AWK prints the entire record by default. But you can instruct AWK to print only certain fields. For instance, the following example prints the third and fourth field when a pattern match succeeds.
+Example
+[jerry]$ awk '/a/ {print $3 "\t" $4}' marks.txt
+On executing this code, you get the following result −
+Output
+Maths    90
+Biology  87
+English  85
+History  89
+
+Counting and Printing Matched Pattern
+Let us see an example where you can count and print the number of lines for which a pattern match succeeded.
+Example
+[jerry]$ awk '/a/{++cnt} END {print "Count = ", cnt}' marks.txt
+On executing this code, you get the following result −
+Output
+Count = 4
+
+Printing Lines with More than 18 Characters
+Let us print only those lines that contain more than 18 characters.
+Example
+[jerry]$ awk 'length($0) > 18' marks.txt
+
+ARGC
+It implies the number of arguments provided at the command line.
+Example
+[jerry]$ awk 'BEGIN {print "Arguments =", ARGC}' One Two Three Four
+On executing this code, you get the following result −
+Output
+Arguments = 5
+
+ARGV
+It is an array that stores the command-line arguments. The array's valid index ranges from 0 to ARGC-1.
+Example
+[jerry]$ awk 'BEGIN { 
+   for (i = 0; i < ARGC - 1; ++i) { 
+      printf "ARGV[%d] = %s\n", i, ARGV[i] 
+   } 
+}' one two three four
+On executing this code, you get the following result −
+Output
+ARGV[0] = awk
+ARGV[1] = one
+ARGV[2] = two
+ARGV[3] = three
+
+FILENAME
+It represents the current file name.
+Example
+[jerry]$ awk 'END {print FILENAME}' marks.txt
+On executing this code, you get the following result −
+Output
+marks.txt
+
+Variables:
+Variable	Description
+NF		It gives the number of fields in the data
+NR		It gives the number of the current record
+FILENAME	Displays the name of the file that is currently being processed
+FS and OFS	Field separator and Output Field separator
+RS and ORS	Separates the record and Output Record Separator
+
+awk ‘BEGIN {FS= “:”} {print $2}’ testFile2.txt
+awk -F “:” ‘{print $2}’ testFile2.txt
+awk ‘BEGIN {RS = “:”}{print $1}’ testFile2.txt
+
+NF
+It represents the number of fields (columns) in the current record. For instance, the following example prints only those lines that contain more than two fields.
+Example
+[jerry]$ echo -e "One Two\nOne Two Three\nOne Two Three Four" | awk 'NF > 2'
+On executing this code, you get the following result −
+Output
+One Two Three
+One Two Three Four
+
+NR
+It represents the number of total records. For instance, the following example prints the record if the current record number is less than three. So prints up to the second record inclusive.
+Example
+[jerry]$ echo -e "One Two\nOne Two Three\nOne Two Three Four" | awk 'NR < 3'
+On executing this code, you get the following result −
+Output
+One Two
+One Two Three
+
+OFS
+It represents the output field separator and its default value is space.
+Example
+[jerry]$ awk 'BEGIN {print "OFS = " OFS}' | cat -vte
+On executing this code, you get the following result −
+Output
+OFS =  $
+
+ORS
+It represents/detects the output record separator and its default value is newline.
+Example
+[jerry]$ awk 'BEGIN {print "ORS = " ORS}' | cat -vte
+On executing the above code, you get the following result −
+Output
+ORS = $
+$
+
+Dot
+It matches any single character except the end of line character. For instance, the following example matches fin, fun, fan etc.
+Example
+[jerry]$ echo -e "cat\nbat\nfun\nfin\nfan" | awk '/f.n/' # f*n or alike
+
+Start of line
+It matches the start of line. For instance, the following example prints all the lines that start with pattern The.
+Example
+[jerry]$ echo -e "This\nThat\nThere\nTheir\nthese" | awk '/^The/'
+
+End of line
+It matches the end of line. For instance, the following example prints the lines that end with the letter n.
+Example
+[jerry]$ echo -e "knife\nknow\nfun\nfin\nfan\nnine" | awk '/n$/'
+
+Match character set
+It is used to match only one out of several characters. For instance, the following example matches pattern Call and Tall but not Ball.
+Example
+[jerry]$ echo -e "Call\nTall\nBall" | awk '/[CT]all/'
+
+Exclusive set
+In exclusive set, the carat negates the set of characters in the square brackets. For instance, the following example prints only Ball.
+Example
+[jerry]$ echo -e "Call\nTall\nBall" | awk '/[^CT]all/'
+
+Alteration
+A vertical bar allows regular expressions to be logically OR. For instance, the following example prints Ball and Call.
+Example
+[jerry]$ echo -e "Call\nTall\nBall\nSmall\nShall" | awk '/Call|Ball/'
+
+Zero or One Occurrence
+It matches zero or one occurrence of the preceding character. For instance, the following example matches Colour as well as Color. We have made u as an optional character by using ?.
+Example
+[jerry]$ echo -e "Colour\nColor" | awk '/Colou?r/'
+
+Zero or More Occurrence
+It matches zero or more occurrences of the preceding character. For instance, the following example matches ca, cat, catt, and so on.
+Example
+[jerry]$ echo -e "ca\ncat\ncatt" | awk '/cat*/'
+
+One or More Occurrence
+It matches one or more occurrence of the preceding character. For instance below example matches one or more occurrences of the 2.
+Example
+[jerry]$ echo -e "111\n22\n123\n234\n456\n222"  | awk '/2+/'
+
+Grouping
+Parentheses () are used for grouping and the character | is used for alternatives. For instance, the following regular expression matches the lines containing either Apple Juice or Apple Cake.
+Example
+[jerry]$ echo -e "Apple Juice\nApple Pie\nApple Tart\nApple Cake" | awk 
+   '/Apple (Juice|Cake)/'
+
+If
+Example
+[jerry]$ awk 'BEGIN {num = 10; if (num % 2 == 0) printf "%d is even number.\n", num }'
+[jerry]$ awk 'BEGIN {
+   num = 11; if (num % 2 == 0) printf "%d is even number.\n", num; 
+      else printf "%d is odd number.\n", num 
+}'
+[jerry]$ awk 'BEGIN {
+   a = 30;
+   
+   if (a==10)
+   print "a = 10";
+   else if (a == 20)
+   print "a = 20";
+   else if (a == 30)
+   print "a = 30";
+}'
+
+For
+[jerry]$ awk 'BEGIN { for (i = 1; i <= 5; ++i) print i }'
+
+While
+[jerry]$ awk 'BEGIN {i = 1; while (i < 6) { print i; ++i } }'
+
+Whole functions:
+# Returns minimum number
+function find_min(num1, num2){
+   if (num1 < num2)
+   return num1
+   return num2
+}
+# Returns maximum number
+function find_max(num1, num2){
+   if (num1 > num2)
+   return num1
+   return num2
+}
+# Main function
+function main(num1, num2){
+   # Find minimum number
+   result = find_min(10, 20)
+   print "Minimum =", result
+  
+   # Find maximum number
+   result = find_max(10, 20)
+   print "Maximum =", result
+}
+# Script execution starts here
+BEGIN {
+   main(10, 20)
+}
+
+Redirection
+[jerry]$ awk 'BEGIN { print "Hello, World !!!" > "/tmp/message.txt" }'
+[jerry]$ cat /tmp/message.txt
+[jerry]$ awk 'BEGIN { print "Hello, World !!!" >> "/tmp/message.txt" }'
+[jerry]$ cat /tmp/message.txt
+
+Piping:
+[jerry]$ awk 'BEGIN { print "hello, world !!!" | "tr [a-z] [A-Z]" }'
+Vertical Tab Printing
+[jerry]$ awk 'BEGIN { printf "Sr No\vName\vSub\vMarks\n" }'
+Formatting
+
+%d and %i
+It prints only the integer part of a decimal number.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %d\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 80
+
+%e and %E
+It prints a floating point number of the form [-]d.dddddde[+-]dd.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %E\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 8.066000e+01
+
+The %E format uses E instead of e.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %e\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 8.066000E+01
+
+%f
+It prints a floating point number of the form [-]ddd.dddddd.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %f\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 80.660000
+
+%g and %G
+Uses %e or %f conversion, whichever is shorter, with non-significant zeros suppressed.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %g\n", 80.66 }'
+Output
+On executing this code, you get the following result −
+
+Percentags = 80.66
+The %G format uses %E instead of %e.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %G\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 80.66
+
+%o
+It prints an unsigned octal number.
+Example
+[jerry]$ awk 'BEGIN { printf "Octal representation of decimal number 10 = %o\n", 10}'
+On executing this code, you get the following result −
+Output
+Octal representation of decimal number 10 = 12
+
+%u
+It prints an unsigned decimal number.
+Example
+[jerry]$ awk 'BEGIN { printf "Unsigned 10 = %u\n", 10 }'
+On executing this code, you get the following result −
+Output
+Unsigned 10 = 10
+
+%s
+It prints a character string.
+Example
+[jerry]$ awk 'BEGIN { printf "Name = %s\n", "Sherlock Holmes" }'
+On executing this code, you get the following result −
+Output
+Name = Sherlock Holmes
+
+%x and %X
+It prints an unsigned hexadecimal number. The %X format uses uppercase letters instead of lowercase.
+Example
+[jerry]$ awk 'BEGIN { 
+   printf "Hexadecimal representation of decimal number 15 = %x\n", 15
+}'
+On executing this code, you get the following result −
+Output
+Hexadecimal representation of decimal number 15 = f
+
+Now let use %X and observe the result −
+Example
+[jerry]$ awk 'BEGIN { 
+   printf "Hexadecimal representation of decimal number 15 = %X\n", 15
+}'
+On executing this code, you get the following result −
+Output
+Hexadecimal representation of decimal number 15 = F  
+
+%%
+It prints a single % character and no argument is converted.
+Example
+[jerry]$ awk 'BEGIN { printf "Percentags = %d%%\n", 80.66 }'
+On executing this code, you get the following result −
+Output
+Percentags = 80%
+
+Optional Parameters with %
+With % we can use following optional parameters −
+Width
+The field is padded to the width. By default, the field is padded with spaces but when 0 flag is used, it is padded with zeroes.
+Example
+[jerry]$ awk 'BEGIN { 
+   num1 = 10; num2 = 20; printf "Num1 = %10d\nNum2 = %10d\n", num1, num2 
+}'
+On executing this code, you get the following result −
+Output
+Num1 =         10
+Num2 =         20
+
+Leading Zeros
+A leading zero acts as a flag, which indicates that the output should be padded with zeroes instead of spaces. Please note that this flag only has an effect when the field is wider than the value to be printed. The following example describes this −
+Example
+[jerry]$ awk 'BEGIN { 
+   num1 = -10; num2 = 20; printf "Num1 = %05d\nNum2 = %05d\n", num1, num2 
+}'
+On executing this code, you get the following result −
+Output
+Num1 = -0010
+Num2 = 00020
+
+Left Justification
+The expression should be left-justified within its field. When the input-string is less than the number of characters specified, and you want it to be left justified, i.e., by adding spaces to the right, use a minus symbol (–) immediately after the % and before the number.
+In the following example, output of the AWK command is piped to the cat command to display the END OF LINE($) character.
+Example
+[jerry]$ awk 'BEGIN { num = 10; printf "Num = %-5d\n", num }' | cat -vte
+On executing this code, you get the following result −
+Output
+Num = 10   $
+
+Prefix Sign
+It always prefixes numeric values with a sign, even if the value is positive.
+Example
+[jerry]$ awk 'BEGIN { 
+   num1 = -10; num2 = 20; printf "Num1 = %+d\nNum2 = %+d\n", num1, num2 
+}'
+On executing this code, you get the following result −
+Output
+Num1 = -10
+Num2 = +20
+
+Hash
+For %o, it supplies a leading zero. For %x and %X, it supplies a leading 0x or 0X respectively, only if the result is non-zero. For %e, %E, %f, and %F, the result always contains a decimal point. For %g and %G, trailing zeros are not removed from the result. The following example describes this −
+Example
+[jerry]$ awk 'BEGIN { 
+   printf "Octal representation = %#o\nHexadecimal representaion = %#X\n", 10, 10
+}'
+On executing this code, you get the following result −
+Output
+Octal representation = 012
+Hexadecimal representation = 0XA
+
+rand
+This function returns a random number N, between 0 and 1, such that 0 <= N < 1. For instance, the following example generates three random numbers
+Example
+[jerry]$ awk 'BEGIN {
+   print "Random num1 =" , rand()
+   print "Random num2 =" , rand()
+   print "Random num3 =" , rand()
+}'
+
+gsub(regex, sub, string)
+gsub stands for global substitution. It replaces every occurrence of regex with the given string (sub). The third parameter is optional. If it is omitted, then $0 is used.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "Hello, World"
+   print "String before replacement = " str
+   gsub("World", "Jerry", str)
+   print "String after replacement = " str
+}'
+
+index(str, sub)
+It checks whether sub is a substring of str or not. On success, it returns the position where sub starts; otherwise it returns 0. The first character of str is at position 1.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "One Two Three"
+   subs = "Two"
+   ret = index(str, subs)
+   printf "Substring \"%s\" found at %d location.\n", subs, ret
+}'
+
+length(str)
+It returns the length of a string.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "Hello, World !!!"
+   print "Length = ", length(str)
+}'
+
+match(str, regex)
+It returns the index of the first longest match of regex in string str. It returns 0 if no match found.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "One Two Three"
+   subs = "Two"
+   ret = match(str, subs)
+   printf "Substring \"%s\" found at %d location.\n", subs, ret
+}'
+
+split(str, arr, regex)
+This function splits the string str into fields by regular expression regex and the fields are loaded into the array arr. If regex is omitted, then FS is used.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "One,Two,Three,Four"
+   split(str, arr, ",")
+   print "Array contains following values"
+   for (i in arr) {
+      print arr[i]
+   }
+}'
+
+sub(regex, sub, string)
+This function performs a single substitution. It replaces the first occurrence of the regex pattern with the given string (sub). The third parameter is optional. If it is omitted, $0 is used.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "Hello, World"
+   print "String before replacement = " str 
+   sub("World", "Jerry", str)
+   print "String after replacement = " str
+}'
+
+substr(str, start, l)
+This function returns the substring of string str, starting at index start of length l. If length is omitted, the suffix of str starting at index start is returned.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "Hello, World !!!"
+   subs = substr(str, 1, 5)
+   print "Substring = " subs
+}'
+
+tolower(str)
+This function returns a copy of string str with all upper-case characters converted to lower-case.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "HELLO, WORLD !!!"
+   print "Lowercase string = " tolower(str)
+}'
+On executing this code, you get the following result −
+
+Output
+Lowercase string = hello, world !!!
+toupper(str)
+This function returns a copy of string str with all lower-case characters converted to upper case.
+Example
+[jerry]$ awk 'BEGIN {
+   str = "hello, world !!!"
+   print "Uppercase string = " toupper(str)
+}'
+
+strftime([format [, timestamp[, utc-flag]]])
+This function formats timestamps according to the specification in format.
+Example
+[jerry]$ awk 'BEGIN {
+   print strftime("Time = %m/%d/%Y %H:%M:%S", systime())
+}'
+
+
+Mini Programs:
+
+1
+ls -l | awk 'BEGIN {print "Tamanos de los archivos: "}
+                   {print $9, $5; total +- S5; n++}
+             END   {print "Fin de la lista, suma total: total/n}'
+
+2
+echo "1 2 3 4 5 6" | awk '{for (i=1; i<=NF; i++) {printf "%s ", $i; system("sleep 1")} }'
+NF= number of total argsv passed onto the awk
+
+3 Detecting a range of records to print
+sample input: testFile.txt
+1 San History 80 B 0.345
+2 Joel Biology 70 C 0.583
+3 Ellie Physics 85 B+ 0.438
+4 Tonny History 90 A 0.632
+5 Marlene Maths 80 B 0.832
+6 Tess Chemistry 80 B 0.464
+awk ‘/Joel/, /Marlene/ {print $3}’ testFile.txt
+Biology
+Physics
+History
+Maths
+
+awk ‘$4 == 80, $4 == 90 {print $0}’ testFile.txt
+
+awk ‘$4>80 && $6>0.4 {print $2}’ testFile.txt
+
+
+4
+BEGIN {
+i=2
+while(j<4)
+{
+print “The multiplication of 2 with”  j “ is ” i*j;
+j++
+}
+}
+
+$awk -f myCode.awk
+
+
+5
+ps -p 2658194 -o etime ; more nohup.out | sed '/^$/d'
+# sed rids of blank lines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

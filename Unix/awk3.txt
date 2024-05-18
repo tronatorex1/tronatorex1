@@ -1,0 +1,49 @@
+awk2:
+=====
+
+1 manejo de argumentos pasados a awk:
+awk 'BEGIN { 
+   for (i = 0; i < ARGC - 1; ++i) { 
+      printf "ARGV[%d] = %s\n", i, ARGV[i] 
+   } 
+}' one two three four
+
+
+2 invocar el contenido de var de entorno
+awk 'BEGIN { print ENVIRON["USER"] }'
+
+
+3 imprime por NF = columna (number of fields): "-e" es necsario para respectar el "\n":
+echo -e "F1\nF1 F2\nF1 F2 F3\nF1 F2 F3 F4" | awk 'NF > 2'
+
+4 imprime según la pos del registro:
+echo -e "One Two\nOne Two Three\nOne Two Three Four" | awk 'NR < 3'
+esto imprime sólo los registros 1,2
+
+5 suma el tamaño de archivos de Nov:
+ls -l | awk ’$5 == "Nov" { sum += $4 } END { print sum }’
+
+
+6 SHE BANG de awk = #! /bin/awk -f
+
+
+7 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

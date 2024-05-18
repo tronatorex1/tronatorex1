@@ -1,0 +1,2 @@
+echo "" ; echo "" ; ps -p 534274 -o etime ;  ls -ltrh E403E.P4TB02HABITA.ixf | awk '{print $5}' ; sh timeit.sh E403E.P4TB02
+HABITA.ixf

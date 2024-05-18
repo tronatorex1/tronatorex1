@@ -1,0 +1,1259 @@
+AWK EXAMPLES:
+
+
+TAKEN FROM:
+Awk Manual.PDF
+
+_________
+awk '/1/ { print $0 }' Egate.txt  # SIMILAR A HACER: more Egate.txt | grep 1
+
+
+_________
+awk '/WH1/ { print $0 } 
+     /Loc/ { print $1 }' Egate.txt # similar a hacer more Egate.txt | grep WH1 | grep Loc (primero ejecuta todo lo relativo con WH1 y luego con Loc)
+
+
+_________
+ls -ltr | awk '$6 == "Nov" { sum += $5 } END { print sum }' # este script dá la suma total en bytes de archivos en el directorio actual ($6 : Mes ; $5 : Tamaño del archivo)
+
+ls -ltr | awk '$6!="Nov" && FS==" " {x=x+$5} END {print ": " x}'
+
+ls -ltr | awk '$6=="Nov" && FS==" " {x=x+$5} END {print ": " x}'
+
+ls -ltr | awk '$6!="Nov" && FS==" " {x=0} {x=x+$5} END {print ": " x}'
+_________
+var="This               seems like a pretty nice example."
+echo $var | awk '{ print $2 }'
+> seems
+
+echo $var | awk '{ print NF }' # NF SIGNIFICA CONTAR LA CANTIDAD DE COLUMNAS O CAMPOS EN UNA VARIABLE
+>7
+
+echo $var | awk '{ print $NF }' # $NF SIGNIFICA MOSTRAR LA ÚLTIMA COLUMNA O CAMPO EN UNA VARIABLE
+>example.
+
+_________
+awk '$1 ~ /Trans/ { print $1 }' Egate.txt #$1 ~ /Trans/ SIGNIFICA TRAER DE LA COLUMNA O CAMPO 1 TODO AQUEL VALOR SIMILAR A "TRANS" Y MOSTRAR SÓLO LA COLUMNA 1
+o
+ls -ltr | awk '$1 == "lrwxrwxrwx" { print $1 }' # ESTE AWK DEVUELVE +- LO MISMO QUE LA LÍNEA ANTERIOR: ~ /xxx/ Y == "xxx" PARECEN ACTUAR SIMILARMENTE
+                                                # AL USAR == "..." LA COICIDENCIA DEBE SER PERFECTA; 
+                                                # AL USAR ~ /.../ ; /.../ SIRVE COMO COMODÍN (*), ES DECIR, TRAE TODO LO QUE CONTENGA /.../ ...
+_________
+echo a b c d | awk '{ OFS = ":"; $2 = "" ; print ; print NF }' # OFS (OUTPUT FILE SEPARATOR) indica cómo será el caracter de separación de un string que pasa como input del awk ; 
+							       # FS (FILE SEPARATOR se usa para determinar el separador de un string a analizar)
+
+
+_________
+
+for n in `ls POSU*.01` ; do ls POSU*.01 | awk 'FS=".01" { print $1 }' ; sleep 1 ; done
+
+_________
+
+for n in `ls POSU*.01`
+        do
+        old=$n
+        new=`ls $n | awk 'FS="." {print $1}'`
+        echo $old \\t $new
+	  cp -f $old $new
+        done
+_________
+
+Leer la cantidad de líneas en aquellos archivos resultante de la lista "ls" (es decir: todos los *.out)
+
+awk 'END { print NR }' `ls *.out` | awk 'BEGIN {x=0} {x=x+$1} END {print " LOSAS - Records so far: " x}'
+o
+awk 'END { print NR }' `ls *.out`
+o
+awk 'END { print NR }' `find . -name *.out`
+
+
+_________
+
+nohup sleep 200 &
+nohup sleep 200 &
+nohup sleep 200 &
+nohup sleep 200 &
+
+
+
+
+ps -ef | grep sleep | grep -v grep
+
+
+
+for i in `ps -ef | grep sleep | grep -v grep | awk '{print $2}'`
+do
+sleep 1
+proc=$i
+echo "Shutting down PID: $proc"
+kill -9 $proc
+# if [ `ps -ef | grep $proc | grep -v grep | awk '{print $2}'` = ""]
+# then
+#	sleep 1
+#	echo "   + PID: $proc Shutdown!!!\n"
+# fi
+proc=""
+done
+
+
+___________
+
+CASE:
+-----
+
+#!/bin/sh
+var=$1
+
+case "$var" in
+kill)
+ls -ltr *[Kk][Ii]*
+;;
+[Aa][Ww])
+echo "aw ************************** "
+sleep 2
+;;
+*)
+echo " wild card !!! "
+sleep 1
+;;
+esac
+exit
+
+__________
+
+SED:
+#!/bin/bash
+   2 
+   3 # This is a simple script that removes blank lines from a file.
+   4 # No argument checking.
+   5 #
+   6 # You might wish to add something like:
+   7 # if [ -z "$1" ]
+   8 # then
+   9 #  echo "Usage: `basename $0` target-file"
+  10 #  exit 65
+  11 # fi
+  12 
+  13 
+  14 # Same as
+  15 #    sed -e '/^$/d' filename
+  16 # invoked from the command line.
+  17 
+  18 sed -e /^$/d "$1"
+  19 #  The '-e' means an "editing" command follows (optional here).
+  20 #  '^' is the beginning of line, '$' is the end.
+  21 #  This match lines with nothing between the beginning and the end,
+  22 #+ blank lines.
+  23 #  The 'd' is the delete command.
+  24 
+  25 #  Quoting the command-line arg permits
+  26 #+ whitespace and special characters in the filename.
+  27 
+  28 exit 0
+
+cat y | sed 's/\ //g' | sed '/^$/d'
+1.- sed 's/\ //g' : remueve “\ “ (espacios en blanco) de la línea
+2.- sed '/^$/d' : remueve “^$” (líneas en blanco) del archivo
+
+Programa para eliminar líneas que coincidan con un literal especial/en específico:
+
+for i in `ls topicmesshist*.out`
+do
+echo " Sed'ing file : $i"
+sleep 1
+sed '/InvAdjust/d' $i > tmp
+cat tmp > $i
+echo " Sed'ing ends ..."
+done
+
+COMANDO SED PARA REMOVER ESPACIOS ENTRE CARACTERES (NO LÍNEAS EN BLANCO)
+sed 's/\ //g' < y
+http://sed.sourceforge.net/sed1line.txt
+
+To delete lines that matche certain string, use:
+sed '/Windows/d' /tmp/data.txt > /tmp/output.data.txt
+
+To remove the ^M characters at the end of all lines in vi, use:
+:%s/^V^M//g
+The ^v is a CONTROL-V character and ^m is a CONTROL-M. When you type this, it will look like this:
+:%s/^M//g
+In UNIX, you can escape a control character by preceeding it with a CONTROL-V. The :%s is a basic search and replace command in vi. It tells vi to replace the regular expression between the first and second slashes (^M) with the text between the second and third slashes (nothing in this case). The g at the end directs vi to search and replace globally (all occurrences).
+
+Borrar texto entre dos literales específicos:
+ej.:
+Linea1
+Linea2
+Linea3_0
+Linea4
+Linea5_1
+Linea6
+Linea7
+
+sed '/WORD1/,/WORD2/d' input.txt > output.txt
+
+sed '/Linea3_0/,/Linea5_1/d' input.txt > output.txt
+
+Programa para limpiar caracteres especiales (ej. ^M) de archivos (swaping: .sh -> .sh.ori -> .sh.sed -> .sh)...
+---------------------------------------------------------------------------------------------------------------
+
+for i in `ls *.sh`
+do
+#
+ori_file=$i
+sed_file=$ori_file
+#
+echo " + creating a backup from $ori_file as $ori_file.ori"
+cp -p $ori_file $ori_file.ori
+
+echo " * sed'ing ^M char from $ori_file.ori into $sed_file"
+cat $ori_file | sed 's/^M//g' > $sed_file
+
+#echo "* renaming .sed file to original .sh extension"
+#mv $sed_file $ori_file
+
+echo ""
+echo ""
+#
+sleep  1
+done
+
+
+o
+
+
+#!/bin/ksh
+###################################################
+# Script that eliminates occurrances of
+# special ctrl+M chars in files from local dir.
+#
+# Mod.    Created By:      Mod. Type:    Mod. Date:
+# ------- ---------------- ------------- ----------
+# orig.   A Vassallo       creation      20100120
+#
+###################################################
+echo ""
+echo ""
+echo " WARNING!!! \n [ ? ] Have you entered an arg1[] = <file_mask>*.* ? Please if using wildcards then sorround it by quots (\") \n otherwise process could act on aby local fil
+e!!! "
+echo ""
+read ans?" Do you want to proceed? [ y | n ] "
+echo ""
+
+if [[ $ans = "y" ]]
+then
+
+#
+file_mask="$1"
+echo " * file_mask=$file_mask"
+echo ""
+for i in `ls $file_mask`
+do
+ori_file=$i
+echo " + creating a backup from $ori_file as $ori_file.ori"
+cp -p $ori_file $ori_file.ori
+echo "  * sed'ing ^M char from $ori_file.ori into $ori_file"
+cat $ori_file.ori | sed 's/^M//g' > $ori_file
+echo "  * sed'ing Done!!!..."
+
+
+
+ENVIAR ATTACHMENTS EN UN EMAIL:
+-------------------------------
+
+
+
+#!/bin/ksh
+# AVM 20120528 : SCRIPT THAT SENDS EMAILS WITH REAL ATTACHED FILES ; UNLIKE MAIL/MAILX WHICH SEND ATTACHMENTS AS PART OF THE BODY
+# ARGS[]
+# ${1} : subject
+# ${2} : file
+# ${3} : address
+cat ${2} | uuencode "${2}" | mailx -s ${1} ${3} 
+echo ""
+echo ""
+#
+sleep  1
+done
+
+else
+echo " [ ? ] You have entered: [ $ans ]; meaning process aborted by user!!!... Exiting!!!...\n\n"
+fi
+
+
+
+
+
+SHIFTING:
+---------
+
+
+sqlplus -s wmswu/wmswu <<eof 1>x2>xx
+select 11 from dual;
+eof
+
+
+
+
+
+
+FTP SCRIPT (AUTOMATION SCRIPTS):
+--------------------------------
+
+EXAMPLE 1:
+
+echo "open $dest
+verbose
+prompt
+type $mode
+`cat ftp1.$seq_no`
+$pre_command
+$command
+quit
+"|ftp  1>ftp.$seq_no 2>&1
+
+
+EXAMPLE 2:
+
+#!/usr/bin/ksh
+ftp -v -n "YOUR.IP.ADD.RESS" << cmd
+user "user" "passwd"
+cd /distant/directory
+lcd /local/directoryget ssh_install
+get ( or put) your files
+quit
+cmd
+
+
+PROVEN EXAMPLE (BASED ON EXAMPLE 2):
+
+#!/usr/bin/ksh
+ftp -v -n ort06 << cmd
+user "awxqa" "awxqa0"
+prompt
+cd  /home/awxqa/tmp
+lcd /dat/rms/data/frtl/in
+mput aa*
+quit
+cmd
+
+
+
+DATA PLACED IN ARRAY FROM ORACLE DB:
+------------------------------------
+
+declare -a da_data
+
+count=0
+cat $LOAD_DA_FILE | \
+while read da_name
+do
+da_data[count]=`$ORACLE_HOME/bin/sqlplus -s username/password@instance << EOF
+set heading off
+set feed off
+
+select start_date from table where derive_name='$da_name';
+
+EXIT
+EOF`
+count=`expr $count + 1`
+echo ${da_data[count-1]} # displaying array value
+
+done
+
+echo -n "Elements Of array : "
+echo ${da_data[@]} # array empty 
+
+
+
+COMANDO FIND:
+-------------
+
+FIND:
+Comando para buscar un string dentro de archivos; luego la salida muestra el path:línea que contiene el string
+
+find . -exec grep "touch" {} /dev/null \;
+gf
+
+How do I ignore hidden .dot files while searching for files?
+
+Find *.txt file but ignore hidden .txt file such as .vimrc or .data.txt file:
+$ find . -type f \( -name "*.txt" ! -name ".*" \)
+
+Find all .dot files but ignore .htaccess file:
+$ find . -type f \( -name ".*" ! -name ".htaccess" \)
+
+
+find . -mtime 0   # find files modified within the past 24 hours
+find . -mtime -1  # find files modified within the past 24 hours
+find . -mtime 1   # find files modified between 24 and 48 hours ago
+find . -mtime +1  # find files modified more than 48 hours ago
+find . -mmin +5 -mmin -10 # find files modifed between 6 and 9 minutes ago
+
+find . -name "POSU_[0-9]*" -type f -size 79c | wc -l
+
+
+---------------------------------------------------------------------------
+
+
+
+real world FIND usage 
+
+ sudo find / -type f -name *.jpg  -exec cp {} . \;
+
+find . -type f -size +10000 -exec ls -al {} \;
+find . -atime +1 -type f -exec mv {} TMP \; # mv files older then 1 day to dir TMP
+find . -name "-F" -exec rm {} \;   # a script error created a file called -F 
+find . -exec grep -i "vds admin" {} \;
+find . \! -name "*.Z" -exec compress -f {} \;
+find . -type f \! -name "*.Z" \! -name ".comment" -print | tee -a /tmp/list
+find . -name *.ini
+find . -exec chmod 775 {} \;
+find . -user xuser1 -exec chown -R user2 {} \;
+find . -name ebtcom*
+find . -name mkbook
+find . -exec grep PW0 {} \;
+find . -exec grep -i "pw0" {} \;
+find . -atime +6
+find . -atime +6 -exec ll | more
+find . -atime +6 -exec ll | more \;
+find . -atime +6 -exec ll \;
+find . -atime +6 -exec ls \;
+find . -atime +30 -exec ls \;
+find . -atime +30 -exec ls \; | wc -l
+find . -name auth*
+find . -exec grep -i plotme10 {};
+find . -exec grep -i plotme10 {} \;
+find . -ls -exec grep 'PLOT_FORMAT 22' {} \;
+find . -print -exec grep 'PLOT_FORMAT 22' {} \;
+find . -print -exec grep 'PLOT_FORMAT' {} \;
+find . -print -exec grep 'PLOT_FORMAT' {} \;
+find ./machbook -exec chown 184 {} \;
+find . \! -name '*.Z' -exec compress {} \;
+find . \! -name "*.Z" -exec compress -f {} \;
+find /raid/03c/ecn -xdev -type f -print
+find /raid/03c/ecn -xdev -path -type f -print
+find / -name .ssh* -print | tee -a ssh-stuff
+find . -name "*font*"
+find . -name hpmcad*
+find . -name *fnt*
+find . -name hp_mcad* -print
+find . -grep Pld {} \;
+find . -exec grep Pld {} \;
+find . -exec grep Pld {} \;
+find . -exec grep PENWIDTH {} \; | more
+find . -name config.pro
+find . -name config.pro
+find /raid -type d ".local_sd_customize" -print
+find /raid -type d -name ".local_sd_customize" -print
+find /raid -type d -name ".local_sd_customize" -ok cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+find /raid -type d -name ".local_sd_customize" -exec cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+find . -name xeroxrelease
+find . -exec grep xeroxrelease {} \;
+find . -name xeroxrelease
+find . -name xeroxrelease* -print 2>/dev/null
+find . -name "*release*" 2>/dev/null
+find / -name "*xerox*" 2>/dev/null
+find . -exec grep -i xeroxrelease {} \;
+find . -print -exec grep -i xeroxrelease {} \;
+find . -print -exec grep -i xeroxrelease {} \; > xeroxrel.lis
+find . -exec grep -i xeroxrel {} \;
+find . -print -exec grep -i xeroxrel {} \;
+find . -print -exec grep -i xeroxrel {} \; | more
+find /raid/03c/inwork -xdev -type f -print >> /raid/04d/user_scripts/prt_list.tmp
+find . -exec grep '31.53' {} \;
+find . -ls -exec grep "31/.53" {} \; > this.lis
+find . -print -exec grep "31/.53" {} \; > this.lis
+find . -print -exec grep 31.53 {} \; > this.lis
+find . -exec grep -i pen {} /;
+find . -exec grep -i pen {} \;
+find . -print -exec grep -i pen {} \; | more
+find . -exec grep -i pen {} \;
+find . -atime +6 -exec ll | more \;
+find . -atime +6 -exec ll \;
+find . -atime +6 -exec ls \;
+find . -atime +30 -exec ls \;
+find . -atime +30 -exec ls \; | wc -l
+find . \! -name '*.Z' -exec compress -f {} \;
+find . -name 'cache*' -depth -exec rm {} \;
+find . -name 'cache*' -depth -print | tee -a /tmp/cachefiles
+find . -name 'cache[0-9][0-9]*' -depth -print | tee -a /tmp/cachefiles
+find . -name 'hp_catfile' 'hp_catlock' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_catfile' -name 'hp_catlock' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_cat*' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_cat[fl]*' -depth -print | tee -a /tmp/hp.cats
+find /raid -name 'hp_cat[fl]*' -depth -print
+find . \! -name '*.Z' -exec compress -f {} \;
+find . -name '*' -exec compress -f {} \;
+find . -xdev -name "wshp1*" -print
+find . -xdev -name "wagoneer*" -print
+find . -name "xcmd" -depth -print
+find /usr/contrib/src -name "xcmd" -depth -print
+find /raid -type d -name ".local_sd_customize" -exec ls {} \; 
+find /raid -type d -name ".local_sd_customize" \
+   -exec cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+
+
+Búsqueda compleja de archivos (usando "OR"):
+
+find . \( -name "`echo "$file_mask"`*[Zz]" -o -name "`echo "$file_mask"`"gz"" \) -type f -mtime +$days_to_delete -exec ls -ltr {} \;
+
+
+
+
+
+
+
+SED: SUSTITUCIÓN DINÁMICA DE LITERALES:
+---------------------------------------
+
+
+Substitución dinámica de string pasándol como param a awk una variable "v1=fe"
+fe="rej"
+echo $v
+> rej
+ls POSU_282_20080330_20080403223614.rej_ | awk -v v1=$fe 'FS=v1 { print $1 }'
+POSU_282_20080330_20080403223614.
+
+Para sustituir caracteres internos en un archivo:
+
+cat a | sed 's/\^M/0000/g' > b
+
+
+
+
+
+************************************
+tutorial de SED (ver al final) (*1)
+************************************
+
+
+Tutorial y Guía Breve del Comando Sed para Unix y Linux
+V0.2 - AmericaTI.com
+
+14 de Noviembre de 2006
+
+Tabla de contenidos
+
+Resumen
+
+    Autoría y Copyright
+    Revisiones 
+
+Introducción
+
+    Uso básico 
+
+Conociendo la operación de sed
+
+    Ejecutar un "script" de sed: opción -f
+    Cómo opera sed internamente
+    Condiciones para ejecución de comandos sed
+    Comandos de sed 
+
+Ejemplos de Sed
+
+    Substituciones simples: Cambiar Ajos por Frijoles
+    Usando comandos avanzados 
+
+Resumen
+
+Este documento pretende proporcionar una visión general y comentar algunos aspectos interesantes del popular comando "sed" disponible en prácticamente todos los sistemas Unix y Linux. Para varios ejemplos se asume que el lector ya conoce el lenguaje de expresiones regulares.
+Autoría y Copyright
+
+Este documento tiene copyright (c) 2006 AmericaTI EIRL (www.americati.com.) Se otorga permiso para copiar, distribuir y/o modificar este documento bajo los términos de la "GNU Free Documentation License, Version 1.2", excepto en lo mencionado en el siguiente párrafo. Esta licencia puede obtenerse en: http://www.gnu.org/licenses/fdl.txt
+
+Si se desea crear un trabajo derivado o publicar este documento para cualquier propósito, por favor contactarnos (vía nuestra página web) a fin de tener la oportunidad de proporcionar una versión más reciente. De no ser esto posible, la última versión debería estar disponible en el sitio web AmericaTI.com.
+
+Son bienvenidas todas las sugerencias y correcciones.
+
+Este documento fue confeccionado con DocBook utilizando el preprocesador Qdk disponible en SourceForge.net.
+
+Revisiones
+
+    *
+
+      0.1 2006-10-11 Primera versión preliminar
+    *
+
+      0.2 2007-01-24 Ejemplos de comandos avanzados
+    *
+
+      0.3 2007-03-26 Agregados dos ejemplos
+
+Introducción
+
+Sed es considerado un editor de texto orientado a "flujo" (en contraposición a los clásicos editores "interactivos) el cual acepta como entrada un archivo o la entrada estándar; cada línea es procesada y el resultado es enviado a la salida estándar.
+
+Para casos muy simples, se suele emplear la sintaxis:
+
+sed comandos_sed archivo
+
+donde "comandos_sed" corresponde a uno o más especificaciones acerca de qué hacer con las líneas que se leen desde "archivo"[1].
+
+Uso básico
+
+Tal vez la manera más simple de iniciarse en sed es mediante ejemplos:
+Borrar la segunda línea
+
+$ cat rata
+1
+2
+3
+4
+5
+6
+$ sed '2d' rata
+1
+3
+4
+5
+6
+
+Como se aprecia, tenemos un archivo de texto tremendamente simple conteniendo seis líneas. Al ejecutar sed cada línea es sometida a los "comandos sed". En este caso, el único comando es "d" referido a la línea número dos (la cual contiene un "2".) Este comando elimina la línea en cuestión, mientras que el resto de líneas no es alterado y por omisión se envían a stdout.
+Imprimir una línea
+
+$ sed '2p' rata
+1
+2
+2
+3
+4
+5
+6
+
+En este ejemplo hemos solicitado la impresión (comando "p") de la línea número dos. Debido a que por omisión las líneas que ingresan son a la vez enviadas a stdout, resulta que la segunda línea es mostrada en dos oportunidades. Obviamente esto no suele ser lo más útil; en el siguiente ejemplo desactivaremos la "impresión automática" de las líneas con la opción "-n":
+
+$ sed -n '2p' rata
+2
+
+Modificar líneas
+
+El comando de substitución "s" permite modificar líneas:
+
+$ sed 's/5/t/' rata
+1
+2
+3
+4
+t
+6
+
+El comando "s" recibe un "patrón de búsqueda" y un texto de reemplazo. En el ejemplo anterior hemos buscado el texto "5" (en todas las líneas) y éste ha sido reemplazado por la letra "t" (podría ser cualquier texto.)
+
+El amperstand (&) se utiliza para reemplazar con "el texto hallado":
+
+$ sed 's/5/&t/' rata
+1
+2
+3
+4
+5t
+6
+
+En este caso, el texto hallado es un "5" por lo que el amperstand contiene este mismo valor. Así, el reemplazar con "&t" equivale a reemplazar con "5t". Esto realmente tiene utilidad cuando se utiliza una expresión regular:
+
+$ sed 's/[2-5]/&t/' rata
+1
+2t
+3t
+4t
+5t
+6
+
+En este caso el "texto hallado" toma respectivamente los valores "2", "3", "4" y "5", el cual es asumido por el amperstand, con lo que el reemplazo real es respectivamente "2t", "3t", "4t" y "5t".
+
+Otro ejemplo muy similar:
+
+$ sed 's/.*/&00/' rata
+100
+200
+300
+400
+500
+600
+
+Conociendo la operación de sed
+
+Ejecutar un "script" de sed: opción -f
+
+En todos los ejemplos anteriores, hemos proporcionado un argumento en la línea de comandos que especificaba lo que deseábamos que sed realice ("los comandos sed".) En casos más sofisticados es usual utilizar un archivo de "script sed" que contenga los "comandos sed" a ejecutarse (especificado con la opción "-f".) Por ejemplo, en lugar de:
+
+$ cat rata
+1
+2
+3
+4
+5
+6
+$ sed -n '2p' rata
+2
+
+Podemos emplear un archivo auxiliar de "script":
+
+$ cat prueba1.sed
+2p
+$ sed -n -f prueba1.sed rata
+2
+
+Cómo opera sed internamente
+
+Se utilizan dos buffers en memoria: el "espacio de patrones" y el "espacio hold". Ambos inicialmente están vacíos.
+
+El programa sed lee una línea de texto de la entrada y la deposita en el "espacio de patrones" (sin el "fin de línea" final.) A continuación se ejecutan los "comandos sed" que correspondan (que satisfacen ciertas condiciones) y finalmente el texto del "espacio de patrones" se envía a la salida estándar seguido por un "fin de línea" (excepto si se utiliza la opción "-n".) Este proceso se repite para todas las líneas de la entrada.
+
+Como se aprecia, el contenido del "espacio de patrones" se pierde entre línea y línea de la entrada; por el contrario, el "espacio hold" se mantiene.
+Condiciones para ejecución de comandos sed
+
+Direccionar líneas
+
+Existen dos métodos estándar:
+
+    *
+
+      NUMERO: Un número corresponde a la línea de la entrada cuya posición corresponde al mismo ("$" significa la última línea)
+    *
+
+      /REGEXP/: Corresponde a las líneas que satisfacen la expresión regular especificada
+
+Si no se especifica una dirección, se asume que el comando aplicará sobre todas las líneas.
+Rangos
+
+Tienen la forma:
+
+dirección1,dirección2
+
+Corresponde a aquellas líneas que se inician apenas se satisfaga la "dirección1" y termina apenas se satisfaga "dirección2".
+
+Ejemplo:
+
+$ cat rata
+1
+2
+3
+4
+5
+6
+$ sed -n '/[23]/,/[56]/p' rata
+2
+3
+4
+5
+
+Comandos de sed
+
+Comentario: #
+
+Este comando se debería emplear sólo en la primera línea de un script de sed (por portabilidad):
+
+$ cat prueba2.sed
+# Un ejemplo sed
+/[23]/,/[56]/p
+$ sed -n -f prueba2.sed rata
+2
+3
+4
+5
+
+Este comando no acepta condiciones de línea.
+Terminar: q
+
+Este comando termina el script en la línea cuya condición se satisface. Opcionalmente recibe un argumento numérico correspondiente al valor de retorno (por omisión es cero.)
+
+$ cat prueba3.sed
+# Un ejemplo sed
+/[23]/,/[56]/p
+4q 10
+$ sed -n -f prueba3.sed rata
+2
+3
+4
+$ echo $?
+10
+
+Borrar espacio de patrones: d
+
+Este comando borra el espacio de patrones e inmediatamente pasa a la siguiente línea de entrada.
+
+$ cat prueba4.sed
+# Un ejemplo sed
+/[23]/,/[56]/d
+diego@rat:~/escritos/sed$ sed -f prueba4.sed rata
+1
+6
+
+Imprimir el espacio de patrones: p
+
+Generalmente se usa con la opción "-n". Se ha mostrado en gran cantidad de ejemplos.
+Agrupar comandos: { ... }
+
+Esto permite ejecutar un conjunto de comandos en relación a una misma condición de línea:
+
+$ cat prueba5.sed
+# Un ejemplo sed
+/[23]/,/[56]/{
+p
+p 
+}
+$ sed -n -f prueba5.sed rata
+2
+2
+3
+3
+4
+4
+5
+5
+
+Hacer substituciones: s/regexp/reemplazo/[opciones]
+
+El "espacio de patrones" es analizado en búsqueda de la expresión regular "regexp". De ocurrir, ésta es reemplazada con "reemplazo". Si se proporciona la opción "g", este proceso se repite con todas las ocurrencias de "regexp" en el "espacio de patrones" (en caso contrario, sólo ocurre un reemplazo.) Finalmente, la opción "p" envía el "espacio de patrones" resultante a la salida estándar siempre que haya ocurrido reemplazo.
+
+El caracter "&" en "reemplazo" equivale al texto de entrada que ha encajado con la expresión regular.
+
+Ejemplo:
+
+$ cat prueba6.sed
+# Un ejemplo sed
+/[23]/,/[56]/s/.*/x/p
+1s/.*/a&b/p
+$ sed -n -f prueba6.sed rata
+a1b
+x
+x
+x
+x
+
+Ejemplo:
+
+$ cat raton
+estaba la rana cantando
+debajo del agua
+diego@rat:~/escritos/sed$ cat prueba7.sed
+# Un ejemplo sed
+1s/a/x/g
+2s/a/x/
+diego@rat:~/escritos/sed$ sed -f prueba7.sed raton
+estxbx lx rxnx cxntxndo
+debxjo del agua
+
+Grabar en archivo: w
+
+Este comando graba el contenido del "espacio de patrones" en el archivo especificado. En la primera ejecución el archivo es truncado (en el ejemplo, apreciar que el contenido original de salida.txt desaparece.)
+
+$ cat salida.txt
+xxx
+$ cat prueba8.sed
+# Un ejemplo sed
+/[23]/,/[56]/{p
+w salida.txt
+}
+$ sed -n -f prueba8.sed rata
+2
+3
+4
+5
+$ cat salida.txt
+2
+3
+4
+5
+
+El "espacio hold"
+
+Estos comandos son algo extraños. Ver los ejemplos más adelante.
+
+x
+
+    Intercambiar el contenido del "espacio hold" con el del "espacio de patrones"
+g
+
+    Transferir el contenido del "espacio hold" hacia el del "espacio de patrones"
+h
+
+    Transferir el contenido del "espacio de patrones" hacia el del "espacio hold"
+G
+
+    Agregar un "fin de línea" al contenido del "espacio de patrones" y a continuación agregarle el contenido del "espacio hold"
+H
+
+    Agregar un "fin de línea" al contenido del "espacio hold" y a continuación agregarle el contenido del "espacio de patrones"
+
+Otros comandos
+
+P
+
+    Imprimir el contenido del "espacio de patrones" hasta antes del primer "fin de línea"
+N
+
+    Agregar un "fin de línea" al "espacio de patrones" y a continuación agregar el contenido de la siguiente línea de la entrada
+D
+
+    Borrar caracteres en el "espacio de patrones" hasta el primer "fin de línea". Si no queda ningún contenido, reiniciar un ciclo normal; de lo contrario, el ciclo se reinicia con el contenido actual
+: etiq
+
+    Permite especificar una "etiqueta" a continuación del ":"
+b etiq
+
+    Genera un salto en la ejecución del script hacia la etiqueta especificada
+t etiq
+
+    Genera un salto sólo si ha ocurrido una substitución exitosa en la última línea leída
+y/s1/s2/
+
+    Traduce los caracteres listados en 's1' a los listados en 's2'. Estos conjuntos de caracteres deben ser del mismo tamaño
+
+Ejemplos de Sed
+
+Substituciones simples: Cambiar Ajos por Frijoles
+
+Pretendemos intercambiar los ajos por frijoles en el siguiente texto:
+
+$ cat ajos.txt
+El trabajo dignifica al hombre
+Las semillas del ajo tienen un fuerte olor a ajo
+Ajolote es un animal extraño
+Ajo para ahuyentar al vampiro!
+Obrajosa, el pueblo de Doña Perfecta
+Le rebajo el kilo de ajos
+
+La substitución simple obviamente no funciona:
+
+$ cat ajos1.sed
+$ sed -f ajos1.sed ajos.txt
+El trabfrijol dignifica al hombre
+Las semillas del frijol tienen un fuerte olor a frijol
+Ajolote es un animal extraño
+Ajo para ahuyentar al vampiro!
+Obrfrijolsa, el pueblo de Doña Perfecta
+Le rebfrijol el kilo de frijols
+
+Para ubicar "ajo" como una palabra independiente, podemos auxiliarnos de los espacios en blanco separadores:
+
+$ cat ajos2.sed
+s/ ajo / frijol /g
+$ sed -f ajos2.sed ajos.txt
+El trabajo dignifica al hombre
+Las semillas del frijol tienen un fuerte olor a ajo
+Ajolote es un animal extraño
+Ajo para ahuyentar al vampiro!
+Obrajosa, el pueblo de Doña Perfecta
+Le rebajo el kilo de ajos
+
+El resultado es mejor, pero se puede mejorar. Por ejemplo, el "ajo" de la segunda línea no es intercambiado por no tener un espacio en blanco a continuación. El patrón " ajo$" podría ubicarlo, y de forma complementaria, deberíamos incluir el patrón "^ajo ":
+
+$ cat ajos3.sed
+s/ ajo / frijol /g
+s/ ajo$/ frijol/
+s/^ajo /frijol /
+$ sed -f ajos3.sed ajos.txt
+El trabajo dignifica al hombre
+Las semillas del frijol tienen un fuerte olor a frijol
+Ajolote es un animal extraño
+Ajo para ahuyentar al vampiro!
+Obrajosa, el pueblo de Doña Perfecta
+Le rebajo el kilo de ajos
+
+Observar que en estos casos no es necesario el sufijo "g" en el comando "s".
+
+El "Ajo" de la cuarta línea no ha sido reemplazado por inicarse con una "A" mayúscula. Podemos corregirlo con facilidad:
+
+$ cat ajos4.sed
+s/ ajo / frijol /g
+s/ ajo$/ frijol/
+s/^ajo /frijol /
+s/ Ajo / Frijol /g
+s/ Ajo$/ Frijol/
+s/^Ajo /Frijol /
+$ sed -f ajos4.sed ajos.txt
+El trabajo dignifica al hombre
+Las semillas del frijol tienen un fuerte olor a frijol
+Ajolote es un animal extraño
+Frijol para ahuyentar al vampiro!
+Obrajosa, el pueblo de Doña Perfecta
+Le rebajo el kilo de ajos
+
+Los "ajos" en plural de la última línea se pueden procesar de un modo similar:
+
+$ cat ajos5.sed
+s/ ajo / frijol /g
+s/ ajo$/ frijol/
+s/^ajo /frijol /
+s/ Ajo / Frijol /g
+s/ Ajo$/ Frijol/
+s/^Ajo /Frijol /
+s/ ajos / frijoles /g
+s/ ajos$/ frijoles/
+s/^ajos /frijoles /
+s/ Ajos / Frijoles /g
+s/ Ajos$/ Frijoles/
+s/^Ajos /Frijoles /
+$ sed -f ajos5.sed ajos.txt
+El trabajo dignifica al hombre
+Las semillas del frijol tienen un fuerte olor a frijol
+Ajolote es un animal extraño
+Frijol para ahuyentar al vampiro!
+Obrajosa, el pueblo de Doña Perfecta
+Le rebajo el kilo de frijoles
+
+Usando comandos avanzados
+
+Saltos
+
+El siguiente script permite invertir el orden de los caracteres de cada línea (en el ejemplo, provenientes de la entrada estándar.)
+
+$ sed -f rever.sed
+123456
+654321
+abracadabra
+arbadacarba
+$ cat rever.sed
+s/^.*$/&\n/
+:n
+s/^\([^\n]\)\(.*\)\n\(.*\)$/\2\n\1\3/
+tn
+s/\n//
+
+El script hace uso de expresiones regulares agregando un separador artificial (un salto de línea) al final de cada una de éstas; luego se crea un "loop" entre el ":n" (etiqueta) y el "tn" (saltar a etiqueta "n" si la substitución fue exitosa); cada substitución lleva un caracter del inicio hacia después del salto de línea; este caracter del inicio debe ser distinto del salto de línea a fin de que la substitución falle cuando cuando se hayan desplazado todos los caracteres.
+
+Tras salir del loop, una última substitución elimina el salto de línea agregado.
+
+Unir líneas de entrada
+
+Tenemos un archivo correspondiente a un catálogo de libros:
+
+cat libros.txt
+Archivo de Libros
+
+--------------
+
+La abeja Maya
+
+Un cuento de insectos y arácnidos
+
+--------------
+
+Los perros hambrientos
+Un clásico de Ciro alegría
+--------------
+
+Cien años de soledad
+Quién no lo conoce?
+La mejor época de GGM
+con Macondo, Melquiades, y otros
+
+Como se aprecia, la estructura corresponde a un grupo de guiones que separan cada entrada; luego de los guiones hay una línea en blanco, y la siguiente línea contiene el título de cada libro. El siguiente script extrae los títulos:
+
+$ cat libros.sed
+/^-------/{
+N
+N
+s/\(.*\)\n\(.*\)\n\(.*\)/\3/
+p
+}
+$ sed -n -f libros.sed libros.txt
+La abeja Maya
+Los perros hambrientos
+Cien años de soledad
+
+La primera línea busca líneas con guiones; para cada una de éstas, se procede a agregar (al buffer de patrones) el contenido de las dos líneas que siguen (con un salto de línea intermedio) mediante el comando N. Finalmente, la substitución separa el buffer de patrones en tres expresiones regulares separadas por saltos de línea y lo substituye por el tercero de éstos (la última línea leída, el título.) Finalmente, el resultado se imprime con 'p' (que a la sazón agrega un conveniente salto de línea.)
+Mostrar la antepenúltima línea de un archivo
+
+Como primer paso, el script que se muestra a continuación se limita a imprimir las últimas tres líneas de un archivo:
+
+$ sed -n -f ultimos.sed libros.txt
+Quién no lo conoce?
+La mejor época de GGM
+con Macondo, Melquiades, y otros
+$ cat ultimos.sed
+H
+g
+3,${ s/[^\n]*\n// ; h }
+$p
+
+Los comandos "H" y "g" se ejecutan para todas las líneas. En el primer caso, el espacio "hold" va acumulando las líneas leídas (el espacio de patrones) separadas por saltos de línea; a continuación, el comando "g" transfiere esta acumulación al espacio de patrones. Para las primeras tres lineas no se hace nada más.
+
+En las subsiguientes líneas, la substitución elimina la línea más "antigua" que se encuentra al principio del espacio de patrones, y es copiada nuevamente al espacio hold con "h". En otras palabras, el espacio hold va acumulando una "ventana" de tres líneas a través del archivo. Al procesarse a la última línea, el contenido del buffer de patrones (que coincide con el de hold) se imprime.
+
+Con una ligera variación obtedremos la antepenúltima línea buscada:
+
+$ sed -n -f antepenultimo.sed libros.txt
+Quién no lo conoce?
+$ cat antepenultimo.sed
+H
+g
+3,${ s/[^\n]*\n// ; h }
+${ s/\([^\n]*\).*/\1/ ; p }
+
+La única diferencia radica en que al procesarse la última línea, la substitución deja únicamente la primera línea de la "ventana" en el buffer de patrones; esta coincide con la antepenúltima.
+Subrayar la primera línea de un archivo
+
+Cierto comando produce el siguiente listado (no importa el comando, sólo tome en cuenta la salida):
+
+$ echo "show databases" | mysql -u pafuser
+Database
+information_schema
+ktest
+mysql
+paftest
+sugarcrm
+superapof
+
+Como debe sospechar, se trata de un listado de "bases de datos", lo cual es indicado en la primera línea de la salida con la palabra "Database"; es evidente que esta primera línea corresponde al "título" de dicha salida, y podríamos "subrayarlo" para hacerlo notar mejor:
+
+$ echo "show databases" | mysql -u pafuser | sed -f subrayado.sed
+Database
+--------
+information_schema
+ktest
+mysql
+paftest
+sugarcrm
+superapof
+
+El script sed es muy sencillo:
+
+cat subrayado.sed
+# subrayar la primera linea
+1{h
+s/./-/g
+H
+g
+}
+
+Todo ocurre exclusivamente al leer la primera línea (y sólo la primera.) La línea leída (en el espacio de patrones) se copia al buffer "hold" con el comando 'h'; luego cada caracter del buffer de patrones es reemplazado por un guión o dash ("-") de modo tal que el subrayado encaje perfectamente con la longitud del título. Después agregamos "el subrayado" del espacio de patrones a la primera línea (en el buffer hold) mediante el comando "H" (ahora el espacio hold contiene la primera línea subrayada); finalmente transferimos el espacio hold al espacio de patrones con el comando "g" (también se pudo usar "x" puesto que el espacio hold ya no se va a utilizar.)
+Dos columnas
+
+Asumiendo que en ejemplo anterior tuviesemos muchas filas en el resultado, podríamos desear obtener una salida a dos columnas (exceptuando el título.) El siguiente script realiza el efecto:
+
+$ cat 2col.sed
+# subrayar la primera linea
+1{h
+s/./-/g
+H
+g
+}
+2,${s/.*/&\t/
+N
+s/\n//
+}
+
+Como se aprecia, para las líneas (empezando de la segunda) se agrega un tabulador y luego se fuerza la lectura de una línea adicional (comando "N"); lamentablemente, de forma automática se introduce un "salto de línea" el cual debe ser eliminado o se perdería el efecto deseado, para lo cual se hace la última substitución.
+
+El resultado es:
+
+$ echo "show databases" | mysql -u pafuser | sed -f 2col.sed
+Database
+--------
+information_schema      ktest
+mysql   paftest
+sugarcrm        superapof
+
+El tabulador funciona como separador, pero la salida no tiene buena apariencia. El siguiente script es una variación del anterior en el que se fuerza la primera columna a 20 caracteres completados con espacios:
+
+$ cat 2colnotab.sed
+# subrayar la primera linea
+1{h
+s/./-/g
+H
+g
+}
+2,${s/.*/&                    /
+s/\(.\{20\}\).*/\1/
+N
+s/\n//
+}
+
+La salida ahora luce más legible:
+
+$ echo "show databases" | mysql -u pafuser | sed -f 2colnotab.sed
+Database
+--------
+information_schema  ktest
+mysql               paftest
+sugarcrm            superapof
+
+
+[1] Como de costumbre, de no especificarse el "archivo", se lee desde stdin. 
+
+
+determinar si un registro pertenece al día Monday ("2"):
+--------------------------------------------------------
+
+select 
+so_module,
+to_char(so_job_started,'yyyymmdd hh24:mi'),
+to_char(trunc(so_job_started),'day'),
+(so_job_finished - so_job_started)*(24*60) "elapsed(mins)"
+from awx.so_job_history
+where 
+    to_char(so_job_started, 'yyyymmdd hh24:mi:ss') >= '20121001 00:00:00'
+and to_char(so_job_finished,'yyyymmdd hh24:mi:ss') <= '20121231 23:59:59'
+and so_module = 'BATCH_SAEXPRMS'
+and to_char(trunc(so_job_started),'D') = '2'
+
+
+COMANDO DU PARA DETERMINAR CONSUMO O USO DE DISCO
+-------------------------------------------------
+
+Permite ubicar los archivos por el commando "disk usage" en megabytes (-m) ubicados en /tst00 y ñluego ordenados numéricamente con sort (-rn)
+ 
+du -m /tst00 | sort -rn | more
+
+
+
+
+
+mail|mailx:
+-----------
+
+Comando para enviar mail con attachments|adjuntos reales, no como parte del body del email
+
+TXTFILE=""
+ATTFILE="orion-ejb-jar.xml.ori"
+SUBJECT="test"
+MAILTO=avassallo@farmatodo.com.ve
+uuencode $ATTFILE $ATTFILE | mail -s "$SUBJECT" $MAILTO
+
+Enviar emails desde AIX con formaro HTML:
+-----------------------------------------
+
+sendmail -t <<EOF
+From: avassallo@farmatodo.com.ve
+To: avassallo@farmatodo.com.ve
+Subject: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+Mime-Version: 1.0;
+Content-Type: text/html; charset="ISO-8859-1";
+Content-Transfer-Encoding: 7bit;
+<html>
+<font size="5" face="consolas" color="black">title</font>
+<font size="3" face="consolas" color="green"></font>
+</html>
+EOF
+
+
+Brackets:
+Lo que está contenido entre corchetes, significan listas de valores.
+cat > x
+a1=$1
+a2=$2
+a3=$3
+echo $a{1,2,3}
+
+ejecutar:
+> . x A 0.90 *************
+
+salida:
+A 0.90 *************
+
+Para asignar en tiempo real una variable mientras está siendo instanciada, se hace:
+
+echo ${FRANKY:=Franky}
+
+Esto permite que a la vez que puede ser impresa por echo, es inmediatamente seteada a Franky
+
+
+
+
+
+
+
