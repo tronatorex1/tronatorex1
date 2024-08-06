@@ -1,0 +1,21 @@
+create table f (
+f1 integer,
+f2 char(10)
+);
+
+alter table b rename column "a" to "b";
+
+alter table d modify d1 char(100);
+
+alter table d alter column d1 char(100);
+
+alter table d alter column d1 character(100);
+
+truncate table b;
+
+truncate table c,d,e,f;
+
+
+
+
+

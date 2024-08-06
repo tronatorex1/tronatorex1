@@ -1,0 +1,29 @@
+/*
+CREATE OR REPLACE PROCEDURE P4
+(varr1 IN varchar)
+language plpgsql
+AS
+$$
+DECLARE
+v_ varchar := '';
+c_c CURSOR FOR SELECT TRIM(A1) FROM A WHERE A1 = 'A';
+BEGIN
+FOR i IN c_c LOOP
+ v_ := i;
+ CASE v_
+ WHEN '(A)' then
+  INSERT INTO A VALUES ('t'||v_,'tenia ():'||v_);
+ WHEN 'A' then
+  INSERT INTO A VALUES ('nt'||v_,'no tenia ():'||v_);
+ ELSE 
+  INSERT INTO A VALUES ('ELSE:'||v_,'ELSE:'||v_);
+ END CASE;
+ raise notice 'found %', v_;
+END LOOP;
+END;
+$$
+*/
+
+call P4('Alex');
+
+SELECT * FROM A;

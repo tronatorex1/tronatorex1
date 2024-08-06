@@ -1,0 +1,8 @@
+delete from B where a is NULL;
+
+commit;
+
+-- ctid == ROWID (provide an Id per record and changes when executed a vaccum command)
+select ctid, * from b;
+
+select ctid, * from b where ctid = '(0,1)';

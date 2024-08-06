@@ -1,0 +1,3 @@
+Random:
+SELECT (random() * 100 * random() ^ 3) AS RAND;
+Note: does not use "from dual" as base object to query data from the engine of the DB

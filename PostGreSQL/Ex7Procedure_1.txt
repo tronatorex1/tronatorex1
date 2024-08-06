@@ -1,0 +1,17 @@
+/*
+CREATE OR REPLACE PROCEDURE P2
+(varr1 IN varchar)
+language plpgsql
+AS
+$$
+DECLARE
+v_ varchar := '';
+BEGIN
+SELECT A1 FROM A INTO v_ WHERE A1 = 'A';
+INSERT INTO A VALUES ('+++'||v_,'+++'||v_);
+raise notice 'inserted %', v_;
+END;
+$$
+*/
+
+call P2('Alex');

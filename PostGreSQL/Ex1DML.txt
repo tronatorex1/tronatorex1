@@ -1,0 +1,12 @@
+INSERT INTO A (A,B) VALUES ('C','c');
+
+update a set a1 = 'aaaa' where a1 = 'a';
+
+delete from a where a1 = 'a';
+
+truncate table a;
+
+
+
+
+

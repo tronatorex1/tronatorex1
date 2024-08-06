@@ -1,0 +1,23 @@
+/*
+CREATE OR REPLACE PROCEDURE P4
+(varr1 IN varchar)
+language plpgsql
+AS
+$$
+DECLARE
+c_c CURSOR FOR SELECT TRIM(A1) FROM A WHERE A1 = 'A';
+rec RECORD;
+BEGIN
+OPEN c_c;
+LOOP
+FETCH c_c into rec;
+exit when not found;
+raise notice 'found % : %', rec, varr1;
+END LOOP;
+END;
+$$
+*/
+
+call P4('Alex');
+
+SELECT * FROM A;

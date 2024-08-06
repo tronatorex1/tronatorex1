@@ -1,0 +1,23 @@
+/*
+CREATE OR REPLACE FUNCTION F3()
+RETURNS varchar AS
+$func$
+DECLARE
+c_c CURSOR FOR SELECT '['||TRIM(a1)||']' FROM a where a1='A';
+BEGIN
+FOR row IN c_c LOOP
+ INSERT INTO A VALUES ('+'||row,'+'||row);
+ raise notice 'trimmed: %' , row;
+ return(row);
+END LOOP;
+END;
+$func$ LANGUAGE plpgsql
+*/
+
+-- drop function F3; 
+
+select F3(); -- to invoke the function
+
+select * from a; -- even though this is not a proc, it inserts data also
+
+

@@ -1,0 +1,20 @@
+
+
+1. create materialized view mv1 as 
+SELECT * FROM b;
+
+2.- check :
+SELECT * FROM b;
+
+SELECT * FROM MV1;
+
+3.- Change source data:
+update b set b1 = (b1 || '-');
+
+4.- certifiy changes made (mat view should hve not changed as the source table):
+SELECT * FROM b;
+
+SELECT * FROM MV1;
+
+5.- refresh mat view:
+REFRESH MATERIALIZED VIEW mv1;

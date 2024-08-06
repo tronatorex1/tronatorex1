@@ -1,0 +1,12 @@
+create or replace procedure P1 (varr1 varchar)
+LANGUAGE plpgsql
+AS
+$$
+begin
+insert into a values (CURRENT_DATE, varr1);
+raise notice 'rec updated: [%]', varr1; 
+commit;
+end;
+$$
+
+--call p1('xxxxx');

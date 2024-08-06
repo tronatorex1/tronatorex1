@@ -1,0 +1,14 @@
+create or replace function F1 (varr1 varchar)
+returns varchar
+language plpgsql
+AS
+$$
+declare
+v varchar := '';
+begin
+select CURRENT_DATE into v;
+raise notice 'Current time is: [%]', v;
+perform pg_sleep(.5);
+return v||varr1;
+end;
+$$

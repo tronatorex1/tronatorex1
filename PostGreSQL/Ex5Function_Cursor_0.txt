@@ -1,0 +1,22 @@
+/*
+CREATE OR REPLACE FUNCTION F4()
+returns varchar AS
+$func$
+DECLARE
+c_c CURSOR FOR SELECT trim(A1) FROM A WHERE A1 = 'A';
+v_ varchar := '';
+BEGIN
+FOR i IN c_c LOOP
+v_ := i;
+raise notice '=> %', v_;
+INSERT INTO A VALUES (v_||'***',v_||'***');
+return(v_);
+end loop;
+END;
+$func$
+language plpgsql
+*/
+
+select F4();
+
+select * from a;

@@ -1,0 +1,22 @@
+
+CREATE OR REPLACE PROCEDURE P3(xxx varchar)
+language plpgsql
+AS
+$$
+DECLARE
+c_c CURSOR FOR SELECT a1,a2 FROM a;
+BEGIN
+FOR row IN c_c LOOP
+ INSERT INTO A VALUES (xxx||row.a1,xxx||row.a2);
+ raise notice 'ADDED: % : %',row.a1, row.a2;
+END LOOP;
+END; 
+$$
+
+-- drop procedure p3; 
+
+call P3('hh____');
+
+select * from a;
+
+

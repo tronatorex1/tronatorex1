@@ -1,0 +1,22 @@
+/*
+CREATE OR REPLACE PROCEDURE P2
+(varr1 IN varchar)
+language plpgsql
+AS
+$$
+DECLARE
+v_ varchar := '';
+c_c CURSOR FOR SELECT TRIM(A1) FROM A WHERE A1 = 'A';
+BEGIN
+FOR i IN c_c LOOP
+ v_ := i;
+ INSERT INTO A VALUES ('x'||v_,'x'||v_);
+ raise notice 'found %', v_;
+END LOOP;
+END;
+$$
+*/
+
+call P2('Alex');
+
+SELECT * FROM A;

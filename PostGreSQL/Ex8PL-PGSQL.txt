@@ -1,0 +1,13 @@
+do $$
+declare
+rn varchar := '';
+i NUMERIC := 0; -- numeric is maybe the highest and biggest number data type
+begin
+for i in 1..2000000000 loop
+ rn := random() * 100;
+ --perform pg_sleep(.5); --try not to use select within code blocks, but instead perform
+ raise notice 'inserted...%', ('a__'||rn); -- this is = print/bmds_output
+ insert into a values (('a_'||i),('a__'||rn));
+end loop;
+end;
+$$

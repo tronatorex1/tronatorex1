@@ -1,0 +1,23 @@
+
+/*
+CREATE OR REPLACE FUNCTION F2()
+returns varchar AS
+$func$
+DECLARE
+v_ varchar := '';
+BEGIN
+select '***'||a1||'***' into v_ from a;
+raise notice '=> %', v_;
+return(v_);
+END;
+$func$
+language plpgsql
+*/
+
+-- drop function F2; 
+
+select F2(); -- to invoke the function
+
+select * from a; -- even though this is not a proc, it inserts data also
+
+
