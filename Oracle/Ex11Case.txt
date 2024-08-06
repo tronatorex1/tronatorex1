@@ -1,0 +1,11 @@
+declare
+a number := &variables;
+BEGIN
+case a
+when 1 then
+insert into x values ((select max(id) + a from x),'when 1');
+else
+insert into x values ((select min(id) - a from x),'when not 1');
+end case;
+END;
+/

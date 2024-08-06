@@ -1,0 +1,32 @@
+DECLARE
+  CURSOR emp_cur (job_max_sal NUMBER) IS
+    SELECT name, id, (id - job_max_sal) overvalue
+    FROM x
+    WHERE 
+    id > job_max_sal;
+  PROCEDURE emp_excesspaid  IS
+    last_name_   x.name%TYPE;
+    first_name_  x.name%TYPE;
+    overvalue    x.id%TYPE;
+  BEGIN
+    LOOP
+      FETCH emp_cur INTO last_name_, first_name_, overvalue;
+      EXIT WHEN emp_cur%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(last_name_ || ', ' || first_name_ || ' (by ' || overvalue || ')');
+    END LOOP;
+  END emp_excesspaid;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('---------------------------------');
+  DBMS_OUTPUT.PUT_LINE('Extra Salary paid to Programmers:');
+  DBMS_OUTPUT.PUT_LINE('---------------------------------');
+  OPEN emp_cur(6);
+  emp_excesspaid; 
+  CLOSE emp_cur;
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------');
+  DBMS_OUTPUT.PUT_LINE('Extra Salary paid to Stock Manager:');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------');
+  OPEN emp_cur(10);
+  emp_excesspaid; 
+  CLOSE emp_cur;
+END;
+/

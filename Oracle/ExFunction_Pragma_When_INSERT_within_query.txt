@@ -1,0 +1,46 @@
+ CREATE OR REPLACE function f_01
+ (VARR1 IN VARCHAR2)
+ RETURN VARCHAR2
+ AS
+ PRAGMA AUTONOMOUS_TRANSACTION; -- <--- this allows the insert to run: 
+ l number := 0;
+ j varchar2(199):= VARR1;
+ cursor c is select a2 from t1 where a1 = 1;
+ rec c%rowtype;
+ BEGIN
+ open c;
+ loop
+ fetch c into rec;
+ exit when c%notfound;
+ l := l + 1;
+ DBMS_OUTPUT.PUT_LINE(l||')--->:'||j);
+ INSERT INTO T1 (a1,a2) VALUES (19+l,j);
+ commit;
+ end loop;
+ close c;
+ RETURN j;
+ END;
+ /
+
+
+> select f_01('alex') from dual;
+F_01('ALEX')
+--------------------------------------------------------------------------------
+alex
+
+Note: https://ittutorial.org/ora-14551-cannot-perform-a-dml-operation-inside-a-query/#:~:text=This%20ORA%2D14551%20error%20is,the%20query%20or%20PDML%20slave.
+
+cannot perform a DML operation inside a query
+This ORA-14551 error is related with the DML operation like insert, update, delete or select-for-update cannot be performed inside a query or under a PDML slave.
+
+Ensure that the offending DML operation is not performed or use an autonomous transaction to perform the DML operation within the query or PDML slave.
+You should use the PRAGMA AUTONOMOUS_TRANSACTION;
+You should give commit explicitly inside the function;
+OR if you got this error when you run function as follows.
+
+SQL> select testfunction('test') from dual;
+Then run it as follows.
+SQL> var myvar NUMBER;
+SQL> call testfunction('test') into :myvar;  
+
+Call completed.

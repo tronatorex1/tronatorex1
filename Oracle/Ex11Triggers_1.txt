@@ -1,0 +1,21 @@
+create or replace trigger t2
+ after 
+  insert or delete or update of id,name on x
+ for each row
+begin
+CASE
+ WHEN INSERTING THEN
+  dbms_output.put_line('inserting'||:NEW.id);
+  insert into w values (:NEW.id, 'insert:'||:NEW.id, sysdate);
+ WHEN UPDATING('x') THEN
+  dbms_output.put_line('updating x'||:NEW.id);
+  insert into w values (:NEW.id, 'update x:'||:NEW.id, sysdate);
+ WHEN UPDATING('name') THEN
+  dbms_output.put_line('updating name'||:NEW.name);
+  insert into w values (:NEW.id, 'update name:'||:NEW.name, sysdate);  
+ WHEN DELETING THEN
+  dbms_output.put_line('deleting'||:NEW.id);
+  insert into w values (:NEW.id, 'deleting id:'||:NEW.id, sysdate);  
+END CASE;
+END;
+/

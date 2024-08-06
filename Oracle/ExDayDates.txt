@@ -1,0 +1,13 @@
+DECLARE
+dt1 DATE := TO_DATE('&new_dt', 'yyyymmdd');
+get_day VARCHAR2(15);
+BEGIN
+get_day := RTRIM(TO_CHAR(dt1, 'DAY'));
+IF get_day IN ('SATURDAY', 'SUNDAY') THEN
+DBMS_OUTPUT.PUT_LINE 
+('The day of the given date is '||get_day||' and it falls on weekend');
+ELSE
+DBMS_OUTPUT.PUT_LINE ('The day of the given date is '||get_day||' and it does not fall on the weekend');
+END IF;
+END;
+/

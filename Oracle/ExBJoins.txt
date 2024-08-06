@@ -1,0 +1,28 @@
+Self joins:
+Son los joins que usan más de una vez la misma tabla:
+ej.: from dep a, dep b Where....
+
+Cross joins:
+Son productos cartesianos
+
+Inner joins:Equijoins
+Son los que sólo listan todos los registros que coinciden con respecto al where
+
+Outer joins:
+Son los que permiten listar lo que coincide + lo que sobra de alguna de las dos tablas
+
+Left outer join:
+Son registros que aparecen en la primera tabla + sólo lo que coincide en la segunda
+ select name, address from x left outer join y on (x.id = y.id); 
+ select x.id, x.name, y.address from x left outer join y on (x.id = y.id);
+
+ select name, address from x,y where x.id = y.id(+);
+ select name, address from x left outer join y using(id);
+
+Right outer join:
+Son regstros que aparcen en la segunda table + sólo lo que coincide en la primera
+ select name, address from x right outer join y on (x.id = y.id);
+ select x.id, x.name, y.address from x right outer join y on (x.id = y.id);
+
+ select name, address from x,y where x.id(+) = y.id;
+ select name, address from x right outer join y using(id);

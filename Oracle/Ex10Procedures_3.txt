@@ -1,0 +1,30 @@
+CREATE OR REPLACE PROCEDURE test_proc (z_emp_id NUMBER) AUTHID DEFINER AS
+BEGIN
+-- delete
+DELETE FROM w WHERE id = 1;
+IF SQL%FOUND THEN
+DBMS_OUTPUT.PUT_LINE ('Delete succeeded for employee_id: ' || z_emp_id);
+ELSE
+DBMS_OUTPUT.PUT_LINE ('No employee of ID '|| z_emp_id||' is found.');
+END IF;
+-- update
+update w set description = 'xxxxxxxxxxxx' WHERE id = 1;
+IF SQL%FOUND THEN
+DBMS_OUTPUT.PUT_LINE ('Update succeeded for employee_id: ' || z_emp_id);
+ELSE
+DBMS_OUTPUT.PUT_LINE ('No employee of ID '|| z_emp_id||' is found.');
+END IF;
+END;
+/
+
+Procedure created.
+
+Elapsed: 00:00:00.02
+SQL> begin
+  2  test_proc(1);
+  3  end;
+  4  /
+No employee of ID 1 is found.
+No employee of ID 1 is found.
+
+PL/SQL procedure successfully completed.

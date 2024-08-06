@@ -1,0 +1,17 @@
+DECLARE
+create SEQUENCE id INCREMENT BY 10;
+i number := 0;
+CURSOR c_c is SELECT X.NAME FROM X;
+rec c_c x%rowtype;
+
+BEGIN
+OPEN c_c;
+LOOP
+FETCH c_c into rec;
+dbms_output.put_line(id.currval||','||id.nextval);
+i := i +1;
+insert into z values (id.nextval,rec.name||'_'||i,sysdate);
+END LOOP;
+CLOSE c_c;
+END;
+/

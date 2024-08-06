@@ -1,0 +1,13 @@
+declare
+Cursor c_cursor is 
+select x.id, x.name, y.address from x,y where x.id = y.id;
+c_rec_cursor c_cursor%rowtype;
+Begin
+Open c_cursor;
+Loop
+Fetch c_cursor into c_rec_cursor;
+exit when c_cursor%notfound;
+dbms_output.put_line(c_rec_cursor.id||','||c_rec_cursor.name||','||c_rec_cursor.address);
+End loop;
+End;
+/

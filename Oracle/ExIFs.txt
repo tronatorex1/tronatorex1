@@ -1,0 +1,12 @@
+DECLARE
+grade number := &X;
+BEGIN
+IF grade = 'A' then
+dbms_output.put_line('good!....');
+elsif grade = 'B' then
+dbms_output.put_line('nice!....');
+else
+dbms_output.put_line('ok!....');
+END IF;
+END;
+/

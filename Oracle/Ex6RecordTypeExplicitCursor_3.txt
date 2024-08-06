@@ -1,0 +1,28 @@
+DECLARE
+ CURSOR c_c is SELECT * FROM X;
+ rec c_c%rowtype;
+ var2 X.name%type;
+ var1 X.id%type;
+BEGIN
+ OPEN c_c;
+ LOOP
+ FETCH c_c into rec;
+ EXIT WHEN c_c%notfound;
+ var1 := rec.id;
+ var2 := rec.name;
+ dbms_output.put_line(var1||','||var2);
+ var1 := var1 + 10;
+  if (rec.id >= 10.1) then
+   dbms_output.put_line('jump...');
+  else
+   insert into x values (var1, var2||'_new');
+  end if;
+ END LOOP;
+ CLOSE c_c;
+EXCEPTION
+   WHEN no_data_found THEN
+           dbms_output.put_line('no data found....');
+   WHEN others THEN
+           dbms_output.put_line('others....');
+END;
+/

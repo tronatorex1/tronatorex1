@@ -1,0 +1,15 @@
+declare
+cursor c_c is select * from x order by id;
+rec c_c%rowtype;
+i number := 0;
+begin
+Open c_c;
+Loop
+ Fetch c_c into rec;
+ dbms_output.put_line(rec.id);
+ exit when c_c%notfound;
+END LOOP;
+dbms_output.Put_line('Total number of rows : '||c_c%rowcount);
+Close c_c;
+end;
+/

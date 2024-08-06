@@ -1,0 +1,19 @@
+CREATE OR REPLACE PROCEDURE P2 (id_ IN number)
+IS
+v varchar2(1000);
+cursor c_c is SELECT NAME FROM X WHERE ID = id_;
+rec c_c%rowtype;
+BEGIN
+OPEN c_c;
+LOOP
+FETCH c_c into rec;
+EXIT WHEN c_c%notfound;
+dbms_output.put_line(' Found : '||rec.name);
+v := '***_'||rec.name;
+dbms_output.put_line(' ---------->'||v);
+update x set name = v where x.id = id_;
+END LOOP;
+commit;
+CLOSE c_c;
+END;
+/

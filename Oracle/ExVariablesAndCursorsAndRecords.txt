@@ -1,0 +1,18 @@
+ DECLARE
+ CURSOR c_c is
+ SELECT x.id, x.name, y.address from x,y where x.id = y.id;
+ REC c_c%rowtype;
+ cont number := 0;
+ BEGIN
+ OPEN c_c;
+ LOOP
+ FETCH c_c into REC;
+ cont := cont + 0.05;
+ dbms_output.put_line(rec.id||','||rec.name||','||rec.address);
+ insert into z values ((rec.id+cont),'01'||rec.name,'01'||rec.address,sysdate);
+ dbms_output.put_line('Number of record inserted: '||to_char(SQL%rowcount));
+ EXIT WHEN c_c%notfound;
+ END LOOP;
+ CLOSE c_c;
+ END;
+/

@@ -1,0 +1,12 @@
+create or replace function F1 (x_ IN number)
+RETURN varchar2
+IS
+res_ number := 0;
+ begin 
+ select to_number(to_char(SYSDATE,'SS') + x_) INTO res_ from dual;
+ return res_||'____________';
+end;
+/
+ 
+
+select f1(19);

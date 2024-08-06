@@ -1,0 +1,9 @@
+DECLARE
+n number := &input_number
+BEGIN
+if n > 0 then dbms_output.put_line('+');
+elsif n = 0 then dbms_output.put_line('0');
+elsif n < 0 then dbms_output.put_line('-');
+end if;
+END;
+/

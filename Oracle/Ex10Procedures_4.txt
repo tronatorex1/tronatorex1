@@ -1,0 +1,12 @@
+create or replace procedure totrows2 (extra IN number)
+IS
+var number := 0;
+xar number := extra;
+begin
+select count(*)+ extra into var from x;
+dbms_output.put_line('***'||var);
+EXCEPTION
+WHEN OTHERS THEN
+   raise_application_error(-20001,'An error was encountered');
+end;
+/

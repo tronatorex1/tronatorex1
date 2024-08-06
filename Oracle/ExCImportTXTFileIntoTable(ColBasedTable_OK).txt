@@ -1,0 +1,23 @@
+-- do this out of the procedure PL/SQL
+create directory load_dir as 'C:\tmp\';
+/
+grant read, write on directory load_dir to dba;
+/
+CREATE TABLE my_txt_1
+(
+ id integer,
+ name VARCHAR2(20),
+ addr VARCHAR2(20)
+)
+ORGANIZATION EXTERNAL
+(
+ TYPE ORACLE_LOADER
+ DEFAULT DIRECTORY load_dir
+ ACCESS PARAMETERS
+  (
+  RECORDS DELIMITED BY NEWLINE
+  fields terminated by ','
+  )
+ LOCATION ('x1.txt')
+)
+/

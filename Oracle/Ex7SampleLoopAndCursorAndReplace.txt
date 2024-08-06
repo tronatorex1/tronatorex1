@@ -1,0 +1,19 @@
+declare
+ c_id      x.id%type := 0;
+ c_name    x.name%type := 'na';
+ c_address y.address%type := 'naa';
+ Cursor c_cursor is
+ select x.id, x.name, y.address from x,y where x.id=y.id;
+
+begin
+
+ OPEN c_cursor;
+ Loop
+ fetch c_cursor into c_id, c_name, c_address;
+ exit when c_cursor%notfound;
+   update x set name    = replace(name,'9',c_id)    where x.id=c_id;
+   update y set address = replace(address,'9',c_id) where y.id=c_id;       dbms_output.put_line(c_id || ' fields updated...');
+ End loop;
+ Close c_cursor;
+End;
+/

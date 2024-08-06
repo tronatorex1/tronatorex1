@@ -1,0 +1,15 @@
+DECLARE
+   i number; 
+   j number; 
+   k number;
+   PROCEDURE findAdd(num1 IN number, num2 IN number, sum OUT number) IS
+BEGIN
+   sum := num1 + num2;
+END; 
+BEGIN
+    i:= 5; 
+    j:= 5; 
+    findAdd(i, j, k); 
+    dbms_output.put_line(' The sum is : ' || k); 
+END; 
+/

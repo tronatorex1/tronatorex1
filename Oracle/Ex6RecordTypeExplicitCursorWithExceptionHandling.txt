@@ -1,0 +1,22 @@
+DECLARE
+   CURSOR c_c is SELECT X.ID, X.NAME, Y.ADDRESS FROM X,Y WHERE X.ID = Y.ID;
+   rec c_c%rowtype;
+BEGIN
+   OPEN c_c;
+   LOOP
+           FETCH c_c into rec;
+           EXIT WHEN c_c%notfound;
+           dbms_output.put_line('...found data: '|| rec.id);
+           insert into z values (rec.id, rec.name, rec.address, sysdate);
+           dbms_output.put_line('  inserted: '|| rec.id);
+   END LOOP;
+CLOSE c_c;
+EXCEPTION
+   WHEN no_data_found THEN
+           dbms_output.put_line('no data found....');
+   WHEN others THEN
+           dbms_output.put_line('others....');
+END;
+/
+
+-- for more exceptions: https://www.tutorialspoint.com/plsql/plsql_exceptions.htm

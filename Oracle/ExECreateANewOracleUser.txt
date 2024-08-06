@@ -1,0 +1,22 @@
+Create a new oracle user:
+
+define USERNAME = demopython
+
+create user &USERNAME;
+
+alter user &USERNAME
+    default tablespace users
+    temporary tablespace temp
+    quota unlimited on users;
+
+grant create session,
+    create view,
+    create sequence,
+    create procedure,
+    create table,
+    create trigger,
+    create type,
+    create materialized view
+    to &USERNAME;
+
+alter user &USERNAME identified by XXXX;

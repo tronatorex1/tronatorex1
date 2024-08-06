@@ -1,0 +1,15 @@
+declare
+cursor c_c is select id, name from x;
+BEGIN
+    FOR i IN c_c LOOP
+        IF i.id < 10 THEN
+          update x set id = id || 1;
+        ELSE
+          update x set id = id || 2;
+        END IF;
+        UPDATE x
+        SET    name = name || '_' || 'X'
+        WHERE  id < 10;
+    END LOOP;
+END;
+/

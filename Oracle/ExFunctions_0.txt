@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION welcome_msg_func (p_name IN VARCHAR2)
+RETURN VARCHAR2
+IS
+BEGIN
+return('welcome '||p_name);END;/
+END;
+/
+
+
+/* to run this function, use it from another pl/sql body of code
+DECLARE
+MSG VARCHAR2(60);
+BEGIN
+MSG := welcome_msg_func('Alex....');
+dbms_output.put_line(MSG);
+END;
+
+or
+
+select welcome_msg_func('alesss.....') from dual
+/
+*/

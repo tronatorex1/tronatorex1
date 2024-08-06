@@ -1,0 +1,14 @@
+create or replace procedure p1
+is
+cursor c_c is select id,name from x;
+rec c_c%rowtype;
+begin
+open c_c;
+loop
+fetch c_c into rec;
+exit when c_c%notfound;
+insert into w values (rec.id, rec.name, sysdate);
+end loop;
+close c_c;
+end;
+/

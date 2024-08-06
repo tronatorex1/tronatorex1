@@ -1,0 +1,18 @@
+create or replace function totrows
+  return number is totrow number := 9999990;
+  begin
+  select count(*) into totrow from x,y where x.id = y.id;
+  return totrow;
+end;
+
+/*
+execute within another pl's body:
+
+declare
+c number;
+begin
+c := totrows();
+dbms_output.put_line('res: '||c);
+end;
+
+*/

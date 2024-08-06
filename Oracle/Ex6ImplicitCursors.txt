@@ -1,0 +1,8 @@
+DECLARE
+ID_ NUMBER;
+NAME_ VARCHAR2(200);
+ BEGIN
+ SELECT ID, NAME INTO ID_, NAME_ FROM X WHERE ID = 1;
+ dbms_output.put_line(ID_||','||NAME_);
+ END;
+/

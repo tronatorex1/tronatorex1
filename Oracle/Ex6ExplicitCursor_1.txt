@@ -1,0 +1,14 @@
+-- remember to set prior to using dbms_output.* : set serveroutput on
+declare
+Cursor c_c is select id, name from x;
+rec c_c%rowtype;
+begin
+open c_c;
+loop
+fetch c_c into rec;
+exit when c_c%notfound;
+dbms_output.put_line(rec.id||'/'||rec.name);
+end loop;
+close c_c;
+end;
+/

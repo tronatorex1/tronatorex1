@@ -1,0 +1,6 @@
+BEGIN
+    FOR i IN (SELECT id, name FROM x WHERE id >= 0) LOOP
+        dbms_output.Put_line('id: '|| i.id || ',' || i.name);
+    END LOOP;
+END; 
+/

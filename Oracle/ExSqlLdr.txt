@@ -1,0 +1,72 @@
+How to use Sql Loader
+Note: sqlldr creates a real table. The External Table procedure doesn't create a real tabnle capable of DML or any ther activity except reading from it! It is faster but is does not allow modify its data stored.
+
+1. Create a folder in which to store these following files. It may be c:\tmp. SqlLdr seems to be able to access this path. 
+
+2. Create the 3 based files:
+ctl
+dat
+par
+as follows:
+
+email.par:
+
+userid=<user>@<SID>/<password>
+control=email.ctl
+log=email.log
+bad=email.bad
+data=email.dat
+direct=true
+
+email.ctl:
+
+load data into table emails
+insert
+fields terminated by ","
+(
+email_id,
+email
+)
+
+email.dat:
+
+1,john.doe@example.com
+2,jane.doe@example.com
+3,peter.doe@example.com
+4,xxx@xxxx.com
+
+3. Then create a table to store this data:
+
+CREATE TABLE emails(
+    email_id NUMBER PRIMARY KEY,
+    email VARCHAR2(150) NOT NULL
+);
+
+
+4. And run:
+
+C:\tmp>sqlldr userid=SYSTEM control=email.ctl data=email.dat
+Password: <enter your pasword here>
+
+
+
+It will display something like this:---
+
+SQL*Loader-570: Warning: single bad file specification with multiple data files using email.bad file may get overwritten.
+
+SQL*Loader: Release 21.0.0.0.0 - Production on Wed Apr 13 12:56:23 2022
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle and/or its affiliates.  All rights reserved.
+
+SQL*Loader-284: Warning: Input data file email.dat specified multiple times.
+Path used:      Direct
+
+Load completed - logical record count 6.
+
+Table EMAILS:
+  4 Rows successfully loaded.
+
+Check the log file:
+  email.log
+for more information about the load.

@@ -1,0 +1,15 @@
+-- this process: 1 joins x and y, 2 inserts into z table, using table/row type explicit cursor and 
+DECLARE
+CURSOR c_c IS select x.id, x.name, y.address from x,y where
+x.id = y.id;
+rec c_c%rowtype; -- here's the row type is instantiated from the explic cursor
+BEGIN
+OPEN c_c;
+LOOP
+FETCH c_c into rec; -- here's the row type receiving all data from cursor
+exit when c_c%notfound;
+insert into z values (rec.id, rec.name, rec.address, sysdate);
+End Loop;
+Close c_c;
+END;
+/

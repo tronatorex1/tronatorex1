@@ -1,0 +1,10 @@
+DECLARE
+n NUMBER := &numero;
+BEGIN
+case n
+when > 0 then dbms_output.put_line('+');
+when = 0 then dbms_output.put_line('0');
+when < 0 then dbms_output.put_line('-');
+end case;
+END;
+/

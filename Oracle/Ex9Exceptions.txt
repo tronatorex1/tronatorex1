@@ -1,0 +1,17 @@
+DECLARE
+   c_id   x.id%type := 81;
+   c_name x.Name%type;
+   c_addr y.address%type;
+BEGIN
+   SELECT x.id, name, address INTO c_id, c_name, c_addr
+   FROM x,y
+   WHERE x.id = y.id AND x.id = c_id;
+   DBMS_OUTPUT.PUT_LINE ('Name: '||  c_name);
+   DBMS_OUTPUT.PUT_LINE ('Address: ' || c_addr);
+EXCEPTION
+   WHEN no_data_found THEN
+      dbms_output.put_line('No such customer!');
+   WHEN others THEN
+      dbms_output.put_line('Error!');
+END;
+/

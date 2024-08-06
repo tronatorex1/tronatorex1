@@ -1,0 +1,10 @@
+CREATE OR REPLACE procedure useofboolean (b1 IN varchar2)
+as
+begin
+case b1
+    when '' then dbms_output.put_line('res: null');
+    when 'Y' then dbms_output.put_line('res: Yes');
+    else dbms_output.put_line('otra verga!!!!');
+end case;
+--dbms_output.put_line('res: '||var);
+end;

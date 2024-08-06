@@ -1,0 +1,7 @@
+Left outer join:
+ select name, address from x left outer join y on (x.id = y.id);
+ select name, address from x,y where x.id = y.id(+);
+
+Right outer join:
+ select name, address from x right outer join y on (x.id = y.id);
+ select name, address from x,y where x.id(+) = y.id;

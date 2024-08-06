@@ -1,0 +1,44 @@
+sql:
+
+Administration:
+
+· how to list content of a procedure:
+select text from all_source where name = 'HELLO_WORLD';
+
+· how to list content of a function:
+SELECT
+owner,text
+FROM SYS.all_source
+WHERE 
+--NAME = '' 
+--AND 
+TYPE = 'FUNCTION' and owner = 'SYSTEM'
+ORDER BY line
+/
+
+· how to list procedures:
+select owner,object_name from all_procedureS where object_type = 'PROCEDURE' and owner = 'SYSTEM';
+
+
+· how to run sqlldr from cmd (all conf file must be in c:\tmp)
+sqlldr userid=SYSTEM control=email.ctl data=email.dat
+
+· how to know how long a process takes:
+ SET TIMING ON
+
+· how to set col type and length:
+col x1 format 9999999
+col x2 format A99 -- string
+
+
+· how to know DB's versions:
+Oracle: SELECT * FROM v$version;
+PostGre: SELECT version();
+
+· 
+
+· 
+
+
+
+

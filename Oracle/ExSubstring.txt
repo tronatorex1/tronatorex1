@@ -1,0 +1,13 @@
+declare
+new varchar2(29);
+cursor c_c is select id from x;
+begin
+open c_c;
+loop
+fetch c_c into new;
+exit when c_c%notfound;
+update x set id = to_number(substr(new,1,2));
+end loop;
+close c_c;
+end;
+/

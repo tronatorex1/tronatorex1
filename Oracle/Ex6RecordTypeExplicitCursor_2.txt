@@ -1,0 +1,13 @@
+DECLARE
+CURSOR c_c is SELECT * FROM X WHERE ID > -1;
+rec x%rowtype;
+BEGIN
+OPEN c_c;
+LOOP
+FETCH c_c INTO rec;
+exit when c_c%notfound;
+dbms_output.put_line(rec.id||','||rec.name);
+END LOOP;
+CLOSE c_c;
+END;
+/

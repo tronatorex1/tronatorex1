@@ -1,0 +1,12 @@
+create or replace trigger t1
+BEFORE
+INSERT OR DELETE ON x
+BEGIN
+ CASE
+ WHEN INSERTING THEN
+ dbms_output.put_line('inserting....');
+ WHEN DELETING THEN
+ dbms_output.put_line('deleting....');
+ END CASE;
+END;
+/
